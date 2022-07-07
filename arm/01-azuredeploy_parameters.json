@@ -1,0 +1,39 @@
+{ 
+    "$schema": "",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "IoTHubName": {
+            "value": "iothubiot"
+        },
+        "IoTHubConnectionString": {
+            "value": null
+        },
+        "storageAccountName": {
+            "value": "datalakeiot"
+        },
+        "containerName": {
+            "value": "rawtelemetry"
+        },
+        "serverName": {
+            "value": "sqliot"
+        },
+        "serverAdminUsername": {
+            "value": "jobender"
+        },
+        "serverAdminPassword": {
+            "value": "MSFT@zur3!!!"
+        },
+        "Serverlogin": {
+            "value": "jobender@microsoft.com"
+        },
+        "subscriptionid": {
+            "value": "c74df6e4-9f8a-488c-90d2-2ded5686ef83"
+        },     
+        "objectid": {
+            "value": "7956294b-d74e-4ccc-946c-da3472575be7"
+        },        
+        "tenantid": {
+            "value": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+        }
+    }
+}

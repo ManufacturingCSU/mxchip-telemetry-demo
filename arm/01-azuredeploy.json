@@ -1,0 +1,332 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "IoTHubName": {
+      "type": "SecureString",
+      "metadata": {
+        "description": "Specifies the name of the IoT Hub."
+      }
+     },
+    "IoTHubConnectionString": {
+      "type": "String",
+      "metadata": {
+        "description": "Specifies the Connection String the IoT Hub."
+      }
+    },
+    "storageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the name of the Azure Storage account."
+      }
+    },
+    "containerName": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the name of the blob container."
+      }
+    },
+    "resourceGroupName": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+          "description": "Specifies the name of the Resource Group."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Specifies the location in which the Azure Storage resources should be deployed."
+      }
+    },
+    "serverName": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the name for the SQL Server."
+      }
+    },
+    "serverAdminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the SQl Server Admin Username for the SQL Server."
+      }
+    },
+    "serverAdminPassword": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the SQl Server Admin Password for the SQL Server."
+      }
+    },
+    "Serverlogin": {
+      "type": "string",
+      "defaultValue": "string",
+      "metadata": {
+        "description": "Specifies the AD login for the SQL Server."
+      }
+    },
+    "subscriptionid": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the AD object id."
+      }
+    },
+    "objectid": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the AD object id."
+      }
+    },
+    "tenantid": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the AD tenantid."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-02-01",
+      "name": "[parameters('storageAccountName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+          "Workload":"MXChip Telemetry Demo"
+      },
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "kind": "StorageV2",
+      "properties": {
+          "defaultToOAuthAuthentication": false,
+          "allowCrossTenantReplication": false,
+          "minimumTlsVersion": "TLS1_2",
+          "allowBlobPublicAccess": true,
+          "allowSharedKeyAccess": true,
+          "isHnsEnabled": true,
+          "networkAcls": {
+              "bypass": "AzureServices",
+              "virtualNetworkRules": [],
+              "ipRules": [],
+              "defaultAction": "Allow"
+          },
+          "supportsHttpsTrafficOnly": true,
+          "encryption": {
+              "services": {
+                  "file": {
+                      "keyType": "Account",
+                      "enabled": true
+                  },
+                  "blob": {
+                      "keyType": "Account",
+                      "enabled": true
+                  }
+              },
+              "keySource": "Microsoft.Storage"
+          },
+          "accessTier": "Hot"
+      }
+    },
+    {
+      "type": "Microsoft.Devices/IotHubs",
+      "apiVersion": "2021-07-02",
+      "name": "[parameters('IoTHubName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+          "[resourceId('Microsoft.Storage/StorageAccounts', parameters('storageAccountName'))]"
+      ],
+      "tags": {
+          "workload": "MXChip Telemetry Demo"
+      },
+      "sku": {
+          "name": "S1",
+          "tier": "Standard",
+          "capacity": 2
+      },
+      "identity": {
+          "type": "SystemAssigned"
+      },
+      "properties": {
+          "ipFilterRules": [],
+          "eventHubEndpoints": {
+              "events": {
+                  "retentionTimeInDays": 1,
+                  "partitionCount": 4
+              }
+          },
+          "routing": {
+              "endpoints": {
+                  "serviceBusQueues": [],
+                  "serviceBusTopics": [],
+                  "eventHubs": [],
+                  "storageContainers": [
+                      {
+                          "containerName": "[parameters('containerName')]",
+                          "fileNameFormat": "{iothub}/{partition}/{YYYY}/{MM}/{DD}/{HH}/{mm}.json",
+                          "batchFrequencyInSeconds": 100,
+                          "maxChunkSizeInBytes": 104857600,
+                          "encoding": "json",
+                          "endpointUri": "[concat('https://', parameters('storageAccountName'), '.blob.core.windows.net/')]",
+                          "authenticationType": "identityBased",
+                          "name": "datalake",
+                          "id": "a4c48ba2-5d66-4b5e-aac0-8d43a933da1d",
+                          "subscriptionId": "[parameters('subscriptionid')]",
+                          "resourceGroup": "[parameters('resourceGroupName')]"
+                      }
+                  ]
+              },
+              "routes": [
+                  {
+                      "name": "events",
+                      "source": "DeviceMessages",
+                      "condition": "true",
+                      "endpointNames": [
+                          "events"
+                      ],
+                      "isEnabled": true
+                  },
+                  {
+                      "name": "datalake",
+                      "source": "DeviceMessages",
+                      "condition": "true",
+                      "endpointNames": [
+                          "datalake"
+                      ],
+                      "isEnabled": true
+                  }
+              ],
+              "fallbackRoute": {
+                  "name": "$fallback",
+                  "source": "DeviceMessages",
+                  "condition": "true",
+                  "endpointNames": [
+                      "events"
+                  ],
+                  "isEnabled": true
+              }
+          },
+          "storageEndpoints": {
+              "$default": {
+                  "sasTtlAsIso8601": "PT1H",
+                  "connectionString": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', parameters('storageAccountName'), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2021-08-01').keys[0].value)]",
+                  "containerName": "[parameters('ContainerName')]"
+              }
+          },
+          "messagingEndpoints": {
+              "fileNotifications": {
+                  "lockDurationAsIso8601": "PT1M",
+                  "ttlAsIso8601": "PT1H",
+                  "maxDeliveryCount": 10
+              }
+          },
+          "enableFileUploadNotifications": false,
+          "cloudToDevice": {
+              "maxDeliveryCount": 10,
+              "defaultTtlAsIso8601": "PT1H",
+              "feedback": {
+                  "lockDurationAsIso8601": "PT1M",
+                  "ttlAsIso8601": "PT1H",
+                  "maxDeliveryCount": 10
+              }
+          },
+          "features": "None",
+          "minTlsVersion": "1.2",
+          "disableLocalAuth": false,
+          "allowedFqdnList": []
+      }
+    },
+    {
+        "type": "Microsoft.Storage/storageAccounts/blobServices",
+        "apiVersion": "2021-09-01",
+        "name": "[concat(parameters('storageAccountName'), '/default')]",
+        "dependsOn": [
+            "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+        ],
+        "sku": {
+            "name": "Standard_LRS",
+            "tier": "Standard"
+        },
+        "properties": {
+            "containerDeleteRetentionPolicy": {
+                "enabled": true,
+                "days": 7
+            },
+            "cors": {
+                "corsRules": []
+            },
+            "deleteRetentionPolicy": {
+                "allowPermanentDelete": false,
+                "enabled": false
+            }
+        }
+    },
+    {
+        "type": "Microsoft.Storage/storageAccounts/fileServices",
+        "apiVersion": "2021-09-01",
+        "name": "[concat(parameters('storageAccountName'), '/default')]",
+        "dependsOn": [
+            "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+        ],
+        "sku": {
+            "name": "Standard_LRS",
+            "tier": "Standard"
+        },
+        "properties": {
+            "protocolSettings": {
+                "smb": {}
+            },
+            "cors": {
+                "corsRules": []
+            },
+            "shareDeleteRetentionPolicy": {
+                "enabled": true,
+                "days": 7
+            }
+        }
+    },
+    {
+        "type": "Microsoft.Storage/storageAccounts/queueServices",
+        "apiVersion": "2021-09-01",
+        "name": "[concat(parameters('storageAccountName'), '/default')]",
+        "dependsOn": [
+            "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+        ],
+        "properties": {
+            "cors": {
+                "corsRules": []
+            }
+        }
+    },
+    {
+        "type": "Microsoft.Storage/storageAccounts/tableServices",
+        "apiVersion": "2021-09-01",
+        "name": "[concat(parameters('storageAccountName'), '/default')]",
+        "dependsOn": [
+            "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+        ],
+        "properties": {
+            "cors": {
+                "corsRules": []
+            }
+        }
+    },
+   {
+        "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+        "apiVersion": "2021-09-01",
+        "name": "[concat(parameters('storageAccountName'), '/default/', parameters('containerName'))]",
+        "dependsOn": [
+            "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccountName'), 'default')]",
+            "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+        ],
+        "properties": {
+            "immutableStorageWithVersioning": {
+                "enabled": false
+            },
+            "defaultEncryptionScope": "$account-encryption-key",
+            "denyEncryptionScopeOverride": false,
+            "publicAccess": "None"
+        }
+    }
+  ]
+}
