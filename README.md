@@ -67,72 +67,15 @@ Navigate to your SQL Server and under _the Firewalls and Virutal Netowrks_ blade
 2. Set _Allow Azure services and resources to access this server_ to Yes.
 Save your firewall settings and proceed to the next step. 
 
-Using [Azure Data Studio](https://docs.microsoft.com/en-us/sql/azure-data-studio/download-azure-data-studio?view=sql-server-ver15), connect to the *AzureSubscriptions* SQL Database on your newly created server and run all cells in the *AzureSubscriptions Database* notebook in the notebook directory of this repository.
+Using [Azure Data Studio](https://docs.microsoft.com/en-us/sql/azure-data-studio/download-azure-data-studio?view=sql-server-ver15), connect to the *IoT* SQL Database on your newly created server and run all cells in the *IoT Database* notebook in the notebook directory of this repository.
 
 Once completed, your *AzureSubscriptions* Database should have the following:
-* MonthlyACR table
-* Subscriptions table
-* ACRFiscalMonthlyView view
-* ACRFiscalQuarterlyView view
-* spUpsertSubscriptions stored procedure
+* Telemetry table
 
-#### Updating the Data Factory Configuration and Creating the Key Vault within the Resource Group ####
 
-Now that we have created SQL assets needed, we need to create the Key Vault instance and grant the Data Factory Managed Identity access to the Key Vault and add the storage and SQL database connection strings as secrets within Key Vault.  We will then update the Data Factory configuration to contain the following:
-* Linked Services 
-    * Azure Key Vault
-    * Azure SQL Database
-    * Azure Blob Storage
-* Datasets
-    * AzureSQL_MonthlyACR
-    * monthlyacr_blobcontainer
-* Pipelines
-    * Run Monthly_ACR Data Flow
-    * ACR Pipeline Stored Procedure 
-* Data Flow
-    * Monthly_ACR
-* Trigger 
-    * storage - Run Monthly_ACR Data Flow
 
-All of this will be automated using the *02-azuredeploy_keyvault_datafactory.json* and *02-azuredeploy_keyvault_datafactory_parameters.json* ARM template files in the arm folder of this repository.  After you have cloned this directory, there are two steps to follow...
-1. Open the *02-azuredeploy_keyvault_datafactory_parameters.json* file and add the values needed for any section with  _insert value here_
-    1. dataFactoryName - This MUST BE the same value as the previous step
-    2. datafactoryobjectid - This is found under your newly created Azure Data Factory Instance as the *Managed Identity Object ID* under the Properties blade.
-    3. storageAccountName - This MUST BE the same value as the previous step 
-    4. objectid - This MUST BE the same value as the previous step 
-    5. tenantid - This MUST BE the same value as the previous step
-    6. storage-connection-string-secret - This is found under your newly created Storage Account as the *Connection String* under the Access Keys blade.
-    7. sql-connection-string-secret - This is found under your newly created AzureSubscriptions SQL Database as the *ADO.NET (SQL authentication)* value under the Connection Strings blade.
-    8. subscriptionid - This is found under Subscriptions within the Azure portal 
-2. Open powershell and navigate to the arm directory of this cloned repository and run the following command:
-```javascript
-$parameters = @{
-    'Name' = 'ACRKeyVaultDataFactory'
-    'ResourceGroupName' = '<insert your resource group name from above>'
-    'TemplateFile'      = '02-azuredeploy_keyvault_datafactory.json'
-    'TemplateParameterFile' = '02-azuredeploy_keyvault_datafactory_parameters.json'
-    'Verbose' = $true
-}
-
-New-AzResourceGroupDeployment @parameters
-```
 
 ### Verify the Setup ###
-
-#### Key Vault ####
-Navigate to your Resource Group within the [Azure Portal](https://portal.azure.com) and you should now see your newly created Azure Key Vault.  You will notice the following under Key Vault.
-* Under Access Policies you should see an entry for the Data Factory application
-* There are now 2 new secrets
-    * sql-connection-string
-    * storage-connection-string
-
-#### Data Factory ####
-Next we need to verify the Linked Services and activate the trigger.  To do so, open the Data Factory instance and perform the following steps:
-1. Under _Linked services_, click the Test Connection on each of the following:
-    1. Azure Key Vault
-    2. Azure SQL Database
-    3. Azure Blob Storage - Please verify that there is no value in the _Secret version_ field.  If there is, please clear the field, save and publish the Linked Service.
-2. Under _Triggers_, verify the storage account and activate &amp; publish the *storage - Run Monthly_ACR Data Flow* trigger.
 
 ### Test the Setup ###
 Now we are ready to test the data flow.  To do so, perform the following steps to generate a data flow from the *Azure Subscription Details-SAS* Power BI Report through Data Factory to the AzureSubscriptions SQL database that will be consumed by the *ACR Totals by Subscription* Power BI Report that we will configure in a subsequent section:
