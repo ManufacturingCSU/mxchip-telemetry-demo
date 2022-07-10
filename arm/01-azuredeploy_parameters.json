@@ -11,6 +11,9 @@
         "containerName": {
             "value": "rawtelemetry"
         },
+        "ServiceBusNamespacePrefix": {
+            "value": "iotsbns"
+        },
         "serverNamePrefix": {
             "value": "sqliot"
         },

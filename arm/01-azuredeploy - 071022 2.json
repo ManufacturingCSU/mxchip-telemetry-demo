@@ -20,12 +20,6 @@
         "description": "Specifies the name of the blob container."
       }
     },
-    "ServiceBusNamespacePrefix": {
-      "type": "String",
-      "metadata": {
-        "description": "Specifies the name of the Service Bus Namespace."
-      }
-    },
     "serverNamePrefix": {
       "type": "string",
       "metadata": {
@@ -41,7 +35,7 @@
     "serverAdminPassword": {
       "type": "string",
       "metadata": {
-        "description": "Specifies the SQL Server Admin Password for the SQL Server."
+        "description": "Specifies the SQl Server Admin Password for the SQL Server."
       }
     },
     "Serverlogin": {
@@ -74,7 +68,6 @@
     "IoTHubName": "[concat( parameters('IoTHubNamePrefix'), uniqueString(resourceGroup().id) )]",
     "storageAccountName": "[toLower( concat( parameters('storageAccountNamePrefix'), uniqueString(resourceGroup().id) ) )]",
     "serverName": "[concat( parameters('serverNamePrefix'), uniqueString(resourceGroup().id) )]",
-    "ServiceBusNamespace": "[concat( parameters('ServiceBusNamespacePrefix'), uniqueString(resourceGroup().id) )]",
     "resourceGroupName": "[resourceGroup().name]",
     "location": "[resourceGroup().location]",
     "tags": "[resourceGroup().tags]"
@@ -194,7 +187,12 @@
                           "batchFrequencyInSeconds": 100,
                           "maxChunkSizeInBytes": 104857600,
                           "encoding": "json",
+                          //"endpointUri": "[concat('https://', variables('storageAccountName'), '.blob.core.windows.net/')]",
+                          //"authenticationType": "identityBased",
                           "name": "datalake"
+                          //"id": "a4c48ba2-5d66-4b5e-aac0-8d43a933da1d",
+                          //"subscriptionId": "[variables('subscriptionid')]",
+                          //"resourceGroup": "[variables('resourceGroupName')]"
                       }
                   ]
               },
@@ -257,79 +255,6 @@
           "disableLocalAuth": false,
           "allowedFqdnList": []
       }
-    },
-    {
-        "type": "Microsoft.ServiceBus/namespaces",
-        "apiVersion": "2022-01-01-preview",
-        "name": "[variables('ServiceBusNamespace')]",
-        "location": "[variables('location')]",
-        "tags": "[variables('tags')]",
-        "sku": {
-            "name": "Basic",
-            "tier": "Basic"
-        },
-        "properties": {
-            "minimumTlsVersion": "1.2",
-            "publicNetworkAccess": "Enabled",
-            "disableLocalAuth": false,
-            "zoneRedundant": false
-        }
-    },
-    {
-        "type": "Microsoft.ServiceBus/namespaces/AuthorizationRules",
-        "apiVersion": "2022-01-01-preview",
-        "name": "[concat(variables('ServiceBusNamespace'), '/RootManageSharedAccessKey')]",
-        "location": "[variables('location')]",
-        "dependsOn": [
-            "[resourceId('Microsoft.ServiceBus/namespaces', variables('ServiceBusNamespace'))]"
-        ],
-        "properties": {
-            "rights": [
-                "Listen",
-                "Manage",
-                "Send"
-            ]
-        }
-    },
-    {
-        "type": "Microsoft.ServiceBus/namespaces/networkRuleSets",
-        "apiVersion": "2022-01-01-preview",
-        "name": "[concat(variables('ServiceBusNamespace'), '/default')]",
-        "location": "[variables('location')]",
-        "dependsOn": [
-            "[resourceId('Microsoft.ServiceBus/namespaces', variables('ServiceBusNamespace'))]"
-        ],
-        "properties": {
-            "publicNetworkAccess": "Enabled",
-            "defaultAction": "Allow",
-            "virtualNetworkRules": [],
-            "ipRules": []
-        }
-    },
-    {
-        "type": "Microsoft.ServiceBus/namespaces/queues",
-        "apiVersion": "2022-01-01-preview",
-        "name": "[concat(variables('ServiceBusNamespace'), '/sms')]",
-        "location": "[variables('location')]",
-        "dependsOn": [
-            "[resourceId('Microsoft.ServiceBus/namespaces', variables('ServiceBusNamespace'))]"
-        ],
-        "properties": {
-            "maxMessageSizeInKilobytes": 256,
-            "lockDuration": "PT30S",
-            "maxSizeInMegabytes": 1024,
-            "requiresDuplicateDetection": false,
-            "requiresSession": false,
-            "defaultMessageTimeToLive": "P1D",
-            "deadLetteringOnMessageExpiration": false,
-            "enableBatchedOperations": true,
-            "duplicateDetectionHistoryTimeWindow": "PT10M",
-            "maxDeliveryCount": 10,
-            "status": "Active",
-            //"autoDeleteOnIdle": "P10675199DT2H48M5.4775807S",
-            "enablePartitioning": false,
-            "enableExpress": false
-        }
     },
     {
       "name": "[variables('serverName')]",
