@@ -3,13 +3,10 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "IoTHubName": {
-            "value": "iothubiot"
-        },
-        "IoTHubConnectionString": {
-            "value": null
+            "value": "iothubiotjobender"
         },
         "storageAccountName": {
-            "value": "datalakeiot"
+            "value": "datalakeiotjobender"
         },
         "containerName": {
             "value": "rawtelemetry"
