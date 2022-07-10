@@ -265,7 +265,7 @@
           "disableLocalAuth": false,
           "allowedFqdnList": []
       }
-    }
+    },
     {
       "name": "[parameters('serverName')]",
       "type": "Microsoft.Sql/servers",
