@@ -2,13 +2,13 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "IoTHubNamePrefix": {
+    "IoTHubName": {
       "type": "SecureString",
       "metadata": {
         "description": "Specifies the name of the IoT Hub."
       }
     },
-    "storageAccountNamePrefix": {
+    "storageAccountName": {
       "type": "string",
       "metadata": {
         "description": "Specifies the name of the Azure Storage account."
@@ -20,7 +20,21 @@
         "description": "Specifies the name of the blob container."
       }
     },
-    "serverNamePrefix": {
+    "resourceGroupName": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+          "description": "Specifies the name of the Resource Group."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Specifies the location in which the Azure Storage resources should be deployed."
+      }
+    },
+    "serverName": {
       "type": "string",
       "metadata": {
         "description": "Specifies the name for the SQL Server."
@@ -64,21 +78,15 @@
       }
     }
   },
-    "variables": {
-    "IoTHubName": "[concat( parameters('IoTHubNamePrefix'), uniqueString(resourceGroup().id) )]",
-    "storageAccountName": "[toLower( concat( parameters('storageAccountNamePrefix'), uniqueString(resourceGroup().id) ) )]",
-    "serverName": "[concat( parameters('serverNamePrefix'), uniqueString(resourceGroup().id) )]",
-    "resourceGroupName": "[resourceGroup().name]",
-    "location": "[resourceGroup().location]",
-    "tags": "[resourceGroup().tags]"
-  },
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2021-02-01",
-      "name": "[variables('storageAccountName')]",
-      "location": "[variables('location')]",
-      "tags": "[variables('tags')]",
+      "name": "[parameters('storageAccountName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+          "Workload":"MXChip Telemetry Demo"
+      },
       "sku": {
         "name": "Standard_LRS",
         "tier": "Standard"
@@ -113,9 +121,9 @@
     {
       "type": "Microsoft.Storage/storageAccounts/blobServices",
       "apiVersion": "2021-09-01",
-      "name": "[concat(variables('storageAccountName'), '/default')]",
+      "name": "[concat(parameters('storageAccountName'), '/default')]",
       "dependsOn": [
-          "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+          "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
       ],
       "sku": {
           "name": "Standard_LRS",
@@ -138,10 +146,10 @@
    {
       "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
       "apiVersion": "2021-09-01",
-      "name": "[concat(variables('storageAccountName'), '/default/', parameters('containerName'))]",
+      "name": "[concat(parameters('storageAccountName'), '/default/', parameters('containerName'))]",
       "dependsOn": [
-          "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccountName'), 'default')]",
-          "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+          "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccountName'), 'default')]",
+          "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
       ],
       "properties": {
           "defaultEncryptionScope": "$account-encryption-key",
@@ -152,12 +160,14 @@
     {
       "type": "Microsoft.Devices/IotHubs",
       "apiVersion": "2021-07-02",
-      "name": "[variables('IoTHubName')]",
-      "location": "[variables('location')]",
+      "name": "[parameters('IoTHubName')]",
+      "location": "[parameters('location')]",
       "dependsOn": [
-          "[resourceId('Microsoft.Storage/StorageAccounts', variables('storageAccountName'))]"
+          "[resourceId('Microsoft.Storage/StorageAccounts', parameters('storageAccountName'))]"
       ],
-      "tags": "[variables('tags')]",
+      "tags": {
+          "workload": "MXChip Telemetry Demo"
+      },
       "sku": {
           "name": "S1",
           "tier": "Standard",
@@ -181,18 +191,18 @@
                   "eventHubs": [],
                   "storageContainers": [
                       {
-                          "connectionString": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storageAccountName'), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2021-08-01').keys[0].value)]",
+                          "connectionString": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', parameters('storageAccountName'), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2021-08-01').keys[0].value)]",
                           "containerName": "[parameters('containerName')]",
                           "fileNameFormat": "{iothub}/{partition}/{YYYY}/{MM}/{DD}/{HH}/{mm}.json",
                           "batchFrequencyInSeconds": 100,
                           "maxChunkSizeInBytes": 104857600,
                           "encoding": "json",
-                          //"endpointUri": "[concat('https://', variables('storageAccountName'), '.blob.core.windows.net/')]",
+                          //"endpointUri": "[concat('https://', parameters('storageAccountName'), '.blob.core.windows.net/')]",
                           //"authenticationType": "identityBased",
                           "name": "datalake"
                           //"id": "a4c48ba2-5d66-4b5e-aac0-8d43a933da1d",
-                          //"subscriptionId": "[variables('subscriptionid')]",
-                          //"resourceGroup": "[variables('resourceGroupName')]"
+                          //"subscriptionId": "[parameters('subscriptionid')]",
+                          //"resourceGroup": "[parameters('resourceGroupName')]"
                       }
                   ]
               },
@@ -229,7 +239,7 @@
           "storageEndpoints": {
               "$default": {
                   "sasTtlAsIso8601": "PT1H",
-                  "connectionString": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storageAccountName'), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2021-08-01').keys[0].value)]",
+                  "connectionString": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', parameters('storageAccountName'), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2021-08-01').keys[0].value)]",
                   "containerName": "[parameters('ContainerName')]"
               }
           },
@@ -257,11 +267,13 @@
       }
     },
     {
-      "name": "[variables('serverName')]",
+      "name": "[parameters('serverName')]",
       "type": "Microsoft.Sql/servers",
       "apiVersion": "2020-11-01-preview",
-      "location": "[variables('location')]",
-      "tags": "[variables('tags')]",
+      "location": "[parameters('location')]",
+      "tags": {
+               "Workload":"MXChip Telemetry Demo"
+            },
       "properties": {
         "administratorLogin": "[parameters('serverAdminUsername')]",
         "administratorLoginPassword": "[parameters('serverAdminPassword')]",
@@ -280,12 +292,14 @@
     {
       "type": "Microsoft.Sql/servers/databases",
       "apiVersion": "2020-11-01-preview",
-      "name": "[concat(variables('serverName'), '/IoT')]",
-      "location": "[variables('location')]",
+      "name": "[concat(parameters('serverName'), '/AzureSubscriptions')]",
+      "location": "[parameters('location')]",
       "dependsOn": [
-          "[resourceId('Microsoft.Sql/servers', variables('serverName'))]"
+          "[resourceId('Microsoft.Sql/servers', parameters('serverName'))]"
       ],
-      "tags": "[variables('tags')]",
+      "tags": {
+                "Workload":"MXChip Telemetry Demo"
+            },
       "sku": {
           "name": "Standard",
           "tier": "Standard",

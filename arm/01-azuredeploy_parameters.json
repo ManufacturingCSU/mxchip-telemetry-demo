@@ -2,16 +2,16 @@
     "$schema": "",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "IoTHubName": {
-            "value": "iothubiotjobender"
+        "IoTHubNamePrefix": {
+            "value": "iothubiot"
         },
-        "storageAccountName": {
-            "value": "datalakeiotjobender"
+        "storageAccountNamePrefix": {
+            "value": "datalakeiot"
         },
         "containerName": {
             "value": "rawtelemetry"
         },
-        "serverName": {
+        "serverNamePrefix": {
             "value": "sqliot"
         },
         "serverAdminUsername": {
