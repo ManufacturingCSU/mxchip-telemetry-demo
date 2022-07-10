@@ -26,6 +26,12 @@
         "description": "Specifies the name of the Service Bus Namespace."
       }
     },
+    "ConnectionTwilioNamePrefix": {
+      "type": "String"
+    },
+    "ConnectionsServicebusNamePrefix": {
+      "type": "String"
+    },
     "serverNamePrefix": {
       "type": "string",
       "metadata": {
@@ -75,6 +81,8 @@
     "storageAccountName": "[toLower( concat( parameters('storageAccountNamePrefix'), uniqueString(resourceGroup().id) ) )]",
     "serverName": "[concat( parameters('serverNamePrefix'), uniqueString(resourceGroup().id) )]",
     "ServiceBusNamespace": "[concat( parameters('ServiceBusNamespacePrefix'), uniqueString(resourceGroup().id) )]",
+    "ConnectionTwilioName": "[concat( parameters('ConnectionTwilioNamePrefix'), uniqueString(resourceGroup().id) )]",
+    "ConnectionsServicebusName": "[concat( parameters('ConnectionsServicebusNamePrefix'), uniqueString(resourceGroup().id) )]",
     "resourceGroupName": "[resourceGroup().name]",
     "location": "[resourceGroup().location]",
     "tags": "[resourceGroup().tags]"
@@ -265,8 +273,8 @@
         "location": "[variables('location')]",
         "tags": "[variables('tags')]",
         "sku": {
-            "name": "Basic",
-            "tier": "Basic"
+              "name": "Standard",
+              "tier": "Standard"
         },
         "properties": {
             "minimumTlsVersion": "1.2",
@@ -326,9 +334,72 @@
             "duplicateDetectionHistoryTimeWindow": "PT10M",
             "maxDeliveryCount": 10,
             "status": "Active",
-            //"autoDeleteOnIdle": "P10675199DT2H48M5.4775807S",
+            "autoDeleteOnIdle": "P10675199DT2H48M5.4775807S",
             "enablePartitioning": false,
             "enableExpress": false
+        }
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "[variables('ConnectionsServicebusName')]",
+      "location": "[variables('location')]",
+      "kind": "V1",
+      "properties": {
+          "displayName": "sms",
+          "statuses": [
+              {
+                  "status": "Connected"
+              }
+          ],
+          "customParameterValues": {},
+          "nonSecretParameterValues": {},
+          //"createdTime": "2021-09-12T22:21:28.9871474Z",
+          //"changedTime": "2021-09-12T22:21:28.9871474Z",
+          "api": {
+              "name": "[variables('ConnectionsServicebusName')]",
+              "displayName": "Service Bus",
+              "description": "Connect to Azure Service Bus to send and receive messages. You can perform actions such as send to queue, send to topic, receive from queue, receive from subscription, etc.",
+              "iconUri": "[concat('https://connectoricons-prod.azureedge.net/releases/v1.0.1568/1.0.1568.2757/', variables('ConnectionsServicebusName'), '/icon.png')]",
+              "brandColor": "#c4d5ff",
+              "id": "[concat('/subscriptions/',parameters('subscriptionid'), '/providers/Microsoft.Web/locations/', variables('location'), '/managedApis/', variables('ConnectionsServicebusName'))]",
+              "type": "Microsoft.Web/locations/managedApis"
+          },
+          "testLinks": []
+        }
+      },
+      {
+        "type": "Microsoft.Web/connections",
+        "apiVersion": "2016-06-01",
+        "name": "[variables('ConnectionTwilioName')]",
+        "location": "[variables('location')]",
+        "kind": "V1",
+        "properties": {
+            "displayName": "jbender twilio",
+            "statuses": [
+                {
+                    "status": "Connected"
+                }
+            ],
+            "customParameterValues": {},
+            "nonSecretParameterValues": {},
+            "createdTime": "2021-09-12T22:24:57.6511607Z",
+            "changedTime": "2021-09-12T22:24:57.6511607Z",
+            "api": {
+                "name": "twilio",
+                "displayName": "Twilio",
+                "description": "Twilio enables apps to send and receive global SMS, MMS and IP messages.", 
+                "iconUri": "https://connectoricons-prod.azureedge.net/releases/v1.0.1450/1.0.1450.2361/twilio/icon.png",
+                "brandColor": "#e22228",
+                "id": "[concat('/subscriptions/', parameters('subscriptionid'), '/providers/Microsoft.Web/locations/', variables('location'), '/managedApis/twilio')]",
+                "type": "Microsoft.Web/locations/managedApis"
+            },
+            "testLinks": [
+                {
+                    "requestUri": "[concat('https://management.azure.com:443/subscriptions/', parameters('subscriptionid'),'/resourceGroups/',variables('resourceGroupName'),'/providers/Microsoft.Web/connections/', variables('ConnectionTwilioName'), '/extensions/proxy/Messages.json?api-version=2016-06-01')]",
+                    "method": "get"
+                }
+            ]
         }
     },
     {

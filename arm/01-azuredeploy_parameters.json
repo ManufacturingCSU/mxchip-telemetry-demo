@@ -3,19 +3,25 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "IoTHubNamePrefix": {
-            "value": "iothubiot"
+            "value": "iothub"
         },
         "storageAccountNamePrefix": {
-            "value": "datalakeiot"
+            "value": "datalake"
         },
         "containerName": {
             "value": "rawtelemetry"
         },
         "ServiceBusNamespacePrefix": {
-            "value": "iotsbns"
+            "value": "sbnamespace"
+        },
+        "ConnectionTwilioNamePrefix": {
+            "value": "twilio"
+        },
+        "ConnectionsServicebusNamePrefix": {
+            "value": "servicebus"
         },
         "serverNamePrefix": {
-            "value": "sqliot"
+            "value": "sql"
         },
         "serverAdminUsername": {
             "value": "jobender"
