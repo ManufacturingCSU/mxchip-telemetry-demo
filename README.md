@@ -70,7 +70,16 @@ NOTE: This must be done before you run the additional azuredeploy.json script.
 
 #### Update the API Connections ####
 
-Even though we created the API Connections, we still 
+Even though we created the API Connections, we still need to update them with the appropriate values
+
+servicebus - API Connection:  
+1. Copy the _Primary Connection String_ from the RooManageSharedAccessKey under the Shared access policies blade of your newly created Service Bus Namspace.
+2. Go to the servicebus - API Connection and on the _Edit API connection_ blade copy that value into the Connection String field and click Save.
+
+twilio - API Connection:
+To use the text messaging component for the alers, we must use [Twilio](https://www.twilio.com/).  
+1. To utilize this connection.  You need to create a Twilio account and create Twilio Account Id and Twilio Access Token.  For instructions to do so, go [here](https://www.twilio.com/docs/iam/access-tokens).
+2. Go to the servicebus - API Connection and on the _Edit API connection_ blade copy those values and click Save.
 
 #### Updating the SQL Server and IoT SQL Database ####
 
