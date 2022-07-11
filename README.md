@@ -13,6 +13,7 @@ In order to add all the components above, we will need to create a new resource 
 * SQL Database
 * Azure Function
 * Service Bus
+* 2 API Connections
 * Logic App
 
 #### Creating the Resource Group ####
@@ -40,6 +41,7 @@ Next we need to deploy the following resources within the Resource Group:
 * SQL Database
 * Azure Function
 * Service Bus
+* 2 API Connections
 * Logic App
 
 This will be done using the *01-azuredeploy.json* and *01-azuredeploy_parameters.json* ARM template files in the arm folder of this repository.  After you have cloned this directory, there are two steps to follow...
@@ -60,18 +62,53 @@ New-AzResourceGroupDeployment @parameters
 ```
 Navigate to the [Azure Portal](https://pocrtal.azure.com) to view your resource group and the resources within it.
 
-#### Creating the tables and views within the SQL Database ####
+### Post Deployment Steps ###
 
-Navigate to your SQL Server and under _the Firewalls and Virutal Netowrks_ blade:
-1. Add your IP address
-2. Set _Allow Azure services and resources to access this server_ to Yes.
-Save your firewall settings and proceed to the next step. 
+#### Update the API Connections ####
 
-Using [Azure Data Studio](https://docs.microsoft.com/en-us/sql/azure-data-studio/download-azure-data-studio?view=sql-server-ver15), connect to the *IoT* SQL Database on your newly created server and run all cells in the *IoT Database* notebook in the notebook directory of this repository.
+Even though we created the API Connections, we still 
 
-Once completed, your *AzureSubscriptions* Database should have the following:
-* Telemetry table
+#### Updating the SQL Server and IoT SQL Database ####
 
+Modify the Firewall settings
+
+1. Navigate to your SQL Server and under the Netowrks blade:
+   a. Add your IP address
+   b. Set _Allow Azure services and resources to access this server_ to Yes.
+   c. Save your firewall settings and proceed to the next step. 
+2. Navigate to the IoT SQL Database and click on the Query editor (preview) blade and run the following SQL script to create the Telemetry table. 
+
+```sql
+/****** Object:  Table [dbo].[Telemetry]    Script Date: 7/10/2022 3:33:35 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[Telemetry](
+	[MessageID] [bigint] IDENTITY(1,1) NOT NULL,
+	[Device] [varchar](100) NOT NULL,
+	[WindowEnd] [datetime2](7) NOT NULL,
+	[Celsius] [float] NULL,
+	[Fahrenheit] [float] NULL,
+	[Humidity] [float] NULL,
+	[Pressure] [float] NULL,
+	[AccelerometerX] [float] NULL,
+	[AccelerometerY] [float] NULL,
+	[AccelerometerZ] [float] NULL,
+	[AnomalyScore] [float] NULL,
+	[Isanomaly] [bigint] NULL,
+	[ReasonCode] [varchar](100) NULL,
+	[ReasonCodeDescription] [varchar](max) NULL,
+ CONSTRAINT [PK_Telemetry_MessageID] PRIMARY KEY CLUSTERED 
+(
+	[MessageID] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+```
 
 
 
