@@ -1,5 +1,5 @@
 # mxchip-telemetry-demo
-The purpose of this repository is to be able to deploy the MX Chip demonstration with a cold, warm and hot path scenario.
+The purpose of this repository is to be able to deploy the MX Chip demonstration with a cold, warm and hot path scenario.  You will need to purchase an MXChip to utilize this demo.  For more information on the MX Chip, click <a href="http://www.mxchip.com/az3166" target="_blank">here</a>.
 
 ### Setup ###
 
