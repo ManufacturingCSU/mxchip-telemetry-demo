@@ -522,15 +522,13 @@
                 "$connections": {
                     "value": {
                         "servicebus": {
-                            "connectionId": "[parameters('ConnectionsServicebusName')]",
+                            "connectionId": "[concat('/subscriptions/',parameters('subscriptionid'), '/resourceGroups/',variables('resourceGroupName'),'/providers/Microsoft.Web/connections/', parameters('ConnectionsServicebusName'))]",
                             "connectionName": "servicebus",
-                            //"id": "/subscriptions/c74df6e4-9f8a-488c-90d2-2ded5686ef83/providers/Microsoft.Web/locations/eastus/managedApis/servicebus"
                             "id": "[concat('/subscriptions/',parameters('subscriptionid'), '/providers/Microsoft.Web/locations/', variables('location'), '/managedApis/', parameters('ConnectionsServicebusName'))]"
                         },
                         "twilio": {
-                            "connectionId": "[parameters('ConnectionTwilioName')]",
+                            "connectionId": "[concat('/subscriptions/',parameters('subscriptionid'), '/resourceGroups/',variables('resourceGroupName'),'/providers/Microsoft.Web/connections/', parameters('ConnectionTwilioName'))]",
                             "connectionName": "twilio",
-                            //"id": "/subscriptions/c74df6e4-9f8a-488c-90d2-2ded5686ef83/providers/Microsoft.Web/locations/eastus/managedApis/twilio"
                             "id": "[concat('/subscriptions/', parameters('subscriptionid'), '/providers/Microsoft.Web/locations/', variables('location'), '/managedApis/', parameters('ConnectionTwilioName'))]"
                         }
                     }
