@@ -245,7 +245,9 @@ WHERE isanomaly = 1
 5.  Using File Explorer, copy the _AZ3166-IoT-Central-2.1.2.bin_ file from the mxchip directory of this repo to the root of your device.
 6.	When the MXChip reboots, you should see a Wifi SID on the display.  Disconnect your PC from your current Wifi and connect to that SID
 7.  Once connected, go to http://192.168.0.1/start make sure to copy your <b>Connection string – primary key</b> from Notepad into the <b>Device connection string</b> field and select all checkboxes listed.<br>&nbsp;<br>
-<img src="https://jq25qg.dm2302.livefilestore.com/y4mG_faJylzWG9bcN4fiO_DNQ0-FXxda3W9K3l1lxmp2uOzJ-drp2zUo5HPXJpriI9Lv3JBSv9btZjJDYz4KfyoUn97E_oTjugqa8qkTsMDi-T3YPiJHzddg8IB-GG0p5BNpUyEmsZKCdKJ72Ijx-w77BSBVJYXA0G_ctKrg2J30TvBuHq3CwBWvCyKUCdFQvi1UTfN8RGq5ANOlWjfHaEXiw?width=660&height=387&cropmode=none" width="660" height="387" /><br>&nbsp;<br>
+
+![picture alt](/images/Configure-MXChip.png "Configuure MX Chip")
+
 Click the <b>Configure Device</b> button and if needed, click the reset button on the MX Chip.<br>&nbsp;<br>
 NOTE:  If you do not get the Device connection string field in the window above, try doing a hard reset on the MX CHIP by holding down both the A & B buttons for a few seconds.
 
