@@ -253,35 +253,36 @@ select * from [dbo].[Telemetry] order by MessageID DESC
 ```
 2. Flip the device over and keep it flipped for about 1-2 minutes.  This will cause the Accelerometer Z reading to dip below zero.  You should recieve a text alert and you will also see a different AnomalyScore and Isanomaly reading in the Telemetry SQL table.
 
-### Power BI Report Configuration ###
+### PowerApp Configuration ###
+This power app will allow you to add a Reason Code to any anomolous reading.  Once we import it, we will modiify the link in the Power BI report to point right to the App.
 
-1. Download the report from the internal Teams site by clicking <a href="https://microsoft.sharepoint.com/:u:/t/ScottTestSite/EcbI60nSdTVOsKfAQ1WNdqMBDdBRXdtHRTiOVgUVE4e1-g?e=GvxqQC" target="_blank">here</a>.
-2. Open the report with <a href="https://powerbi.microsoft.com/en-us/desktop/" target="_blank">Power BI Desktop</a> and from the toolbar, click the _Transform data_ drop down and select _Data source settings_. 
-3. You are presented with the Data source settings popup window.  Click change source in the bottom left and change the Server value to your SQL Server name found on the overview tab of your SQL Server within the [Azure Portal](https://portal.azure.com).  When finished click OK.
+1. We will start by downloading the PowerApp configuration file from the powerapp directory of this repository.  
+2. Go to the [PowerApps Portal](https://powerapps.microsoft.com) and make sure you have selected the _MS Pro Dev_ Environment.
+3. Click on Apps in the left nav bar.
+4. Click _Import Canvas App_ from the toolbar and upload the file.
+5. On the Import package screen set the following and click _Import_.
+    1. _IotSandbox-Telemetry Reason Code_: Via the ACTION control, set the IMPORT SETUP to be _create as new_ and click the Import button below.
+    2. _Related Resources - SQL Server Connection_: Via the ACTION control, create a new SQL Server Connection pointing to the IoT database on your newly created SQL Server and select it so the new connection shows under IMPORT SETUP.
+
+![picture alt](https://github.com/ManufacturingCSU/customer-acr/tree/main/images/PowerApps-ImportPackage.png "PowerApps")
+
+5. Once finished your Power App should be live, you can test it within PowerApps.  
+6. Copy the URL to your Power App as we will need that for the Power BI Report in the next section.
+
+### Power BI Report Configuration ###
+This report will show the live telemetry of the device from the IoT SQL database via a Direct Query connection.
+
+1. Download the report from _powerbi_ directory from this repository.
+2. Open the report with [Power BI Desktop](https://powerbi.microsoft.com/en-us/desktop) and from the toolbar, click the _Transform data_ drop down and select _Data source settings_. 
+3. You are presented with the Data source settings popup window.  Click change source in the bottom left and change the Server value to your SQL Server name found on the overview tab of your SQL Server within the Azure Portal.  When finished click OK.
 4. Back at the Data source settings popup window click Close and on the Power BI main screen click Apply Changes.
 5. At the Native Database Query popup window click Run.
-6. At the SQL server database window click Database along the left and enter the serverAdminUsername and serverAdminPassword values you inputted in the *01-azuredeploy_parameters.json* file and click OK.  Your report should refresh with your data.
-7. Go to the Data Entry tab in the report and click on the Insert tab in the toolbar and select Power Apps.
-    1. Add the following fields to the PowerApps Data control in the Visualizations pane
-        1. Subscription ID
-        2. Subscription Name
-        3. Subsidiary
-    2. Click _Choose app_ in the Power App control and select the newly created _Customer Subscription Info_ canvas app and click Add.
-    3. Resize and test the Power App.  Your values will show in the Power BI report once you refresh the dataset and the report.
+6. At the SQL server database window click Database along the left and enter the serverAdminUsername and serverAdminPassword values you inputted in the *00-azuredeploy_parameters.json* file and click OK.  Your report should refresh with your data.
+7. Click on the purple diamonds in the upper right and under the Format control cheange the Web URl to the URL of your Power App from the previous section.
 8. Save your Power BI Report.
 9. You can publish your report to the Power BI Web service using these [instructions](https://docs.microsoft.com/en-us/power-bi/create-reports/desktop-upload-desktop-files).
 
 
-### PowerApp Configuration ###
-1. We will start by downloading the PowerApp configuration file from the internal Teams Site.  Click <a href="https://microsoft.sharepoint.com/:u:/t/ScottTestSite/ESd1W-6txCNJmB2XU6FQ6bQBntMfnNaeb5Wsy4xS0Y040Q?e=hrkQP6" target="_blank">here</a> to download.
-2. Go to the [PowerApps Portal](https://powerapps.microsoft.com) and click on Apps in the left nav bar.
-3. Click _Import Canvas App_ from the toolbar and upload the file.
-4. On the Import package screen set the following and click _Import_.
-    1. _Customer Subscription INFO_: Via the ACTION control, set the IMPORT SETUP to be _create as new_ and click the Import button below.
-    2. _Related Resources - SQL Server Connection_: Via the ACTION control, create a new SQL Server Connection pointing to the AzureSubscriptions database on your newly created SQL Server and select it so the new connection shows under IMPORT SETUP.
 
-![picture alt](/images/PowerApps-ImportPackage.png "PowerApps")
-
-5. Once finished your Power App should be live, you can test it within PowerApps.  It is time to move onto the Power BI report.
 
 
