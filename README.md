@@ -140,6 +140,7 @@ New-AzResourceGroupDeployment @parameters
 1. From within the Portal open up the Stream Analytics Job and Test the connections below.  
     a. Input - iothub:  If this fails change the value under the _shared access policy name_ and then change it back to _iothubowner_ and click save.
     b. Output - servicebusqueue:  If this fails change the value under the _authentication mode_ and then change it back to _Connection string_ and click save.
+    c. Output - sql.  You may have to re-enter the password.
 2. Within the query section, add the code below and Save the query.  
     _Make sure to add your phone number under the Service Bus section in the script._  
 
@@ -236,50 +237,21 @@ WHERE isanomaly = 1
 6.	When the MXChip reboots, you should see a Wifi SID on the display.  Disconnect your PC from your current Wifi and connect to that SID
 7.  Once connected, go to http://192.168.0.1/start make sure to copy your <b>Connection string – primary key</b> from Notepad into the <b>Device connection string</b> field and select all checkboxes listed.<br>&nbsp;<br>
 <img src="https://jq25qg.dm2302.livefilestore.com/y4mG_faJylzWG9bcN4fiO_DNQ0-FXxda3W9K3l1lxmp2uOzJ-drp2zUo5HPXJpriI9Lv3JBSv9btZjJDYz4KfyoUn97E_oTjugqa8qkTsMDi-T3YPiJHzddg8IB-GG0p5BNpUyEmsZKCdKJ72Ijx-w77BSBVJYXA0G_ctKrg2J30TvBuHq3CwBWvCyKUCdFQvi1UTfN8RGq5ANOlWjfHaEXiw?width=660&height=387&cropmode=none" width="660" height="387" /><br>&nbsp;<br>
-Click the <b>Configure Device</b> button and click the reset button on the MX Chip.<br>&nbsp;<br>
+Click the <b>Configure Device</b> button and if needed, click the reset button on the MX Chip.<br>&nbsp;<br>
 NOTE:  If you do not get the Device connection string field in the window above, try doing a hard reset on the MX CHIP by holding down both the A & B buttons for a few seconds.
 
 8.	Now you should see telemetry coming from your custom named AZ3166.  You can view this by downloading <a href="https://docs.microsoft.com/en-us/azure/iot-fundamentals/howto-use-iot-explorer" target="_blank">Azure IoT Explorer</a>.
 
-### Verify the Setup ###
-
 ### Test the Setup ###
-Now we are ready to test the data flow.  To do so, perform the following steps to generate a data flow from the *Azure Subscription Details-SAS* Power BI Report through Data Factory to the AzureSubscriptions SQL database that will be consumed by the *ACR Totals by Subscription* Power BI Report that we will configure in a subsequent section:
-1. Run the *Azure Subscription Details-SAS* Power BI Report against the account you are tracking.  To do so, change the TPID to your account in the filter pane.
-    1. Click on the *Monthly Export for ACR* tab and click on the elipses button in the upper right corner in the table and select *Exprt Data*.  Save your data in a CSV format locally.
-2. Navigate to your storage account within the [Azure Portal](https://portal.azure.com) and open the *ACR* container.  We need to upload the file we just exported from the *Azure Subscription Details-SAS* Power BI Report.  We must create the *monthlyacr_new* folder under the acr container and upload your CSV file within that *monthlyacr_new* folder in order for the trigger within data factory to execute the pipelines listed above. 
-3. After the file is copied up to the *monthlyacr_new* folder, go to the Monitor blade within Data Factory and you should see the pipeline triggered.  It typically takes about 6-10 minutes for both pipelines to execute.  The following is what the pipelines accomplish when finished:
-    1. Run Monthly_ACR Data Flow - Populates the *MonthlyACR* table in the AzureSubscriptions database.  
-    <B>NOTE:  This does not check for duplicates so I typically filter by month and add data for the previous month on the 10th of the current month.</B> 
-    2. ACR Pipeline Stored Procedure - This executes the *spUpsertSubscriptions stored procedure* which populates the *Subscriptions* table.  It checks for new subscriptions in the MonthlyACR table and if one exists, it adds them to this table.
-4. Once the pipelines are complete, you can query the AzureSubscriptions database with the following queries:
-```javascript
-    SELECT * FROM [dbo].[MonthlyACR] order by FiscalMonth DESC, ACR DESC
+Now we are ready to test the data flow.  To do so, we will perform 2 steps.
+
+1. Go back into the IoT SQL Database within the Azure portal and run the SQL Command below.  You should see data flowing into the table.
+
+```sql
+select * from [dbo].[Telemetry] order by MessageID DESC
+
 ```
-```javascript
-    SELECT * FROM [dbo].[Subscriptions]
-```
-
-## ACR Totals by Subscription ##
-Lastly we are going to configure the Power BI Report and PowerApp to point to the AzureSubscriptions SQL database.
-
-This report and PowerApp allow you to supplement consumption data with the following fields:
-* Customer Subsidiary
-* Customer Initiative
-* Customer Initiative Owner
-* Microsoft Lead
-
-### PowerApp Configuration ###
-1. We will start by downloading the PowerApp configuration file from the internal Teams Site.  Click <a href="https://microsoft.sharepoint.com/:u:/t/ScottTestSite/ESd1W-6txCNJmB2XU6FQ6bQBntMfnNaeb5Wsy4xS0Y040Q?e=hrkQP6" target="_blank">here</a> to download.
-2. Go to the [PowerApps Portal](https://powerapps.microsoft.com) and click on Apps in the left nav bar.
-3. Click _Import Canvas App_ from the toolbar and upload the file.
-4. On the Import package screen set the following and click _Import_.
-    1. _Customer Subscription INFO_: Via the ACTION control, set the IMPORT SETUP to be _create as new_ and click the Import button below.
-    2. _Related Resources - SQL Server Connection_: Via the ACTION control, create a new SQL Server Connection pointing to the AzureSubscriptions database on your newly created SQL Server and select it so the new connection shows under IMPORT SETUP.
-
-![picture alt](/images/PowerApps-ImportPackage.png "PowerApps")
-
-5. Once finished your Power App should be live, you can test it within PowerApps.  It is time to move onto the Power BI report.
+2. Flip the device over and keep it flipped for about 1-2 minutes.  This will cause the Accelerometer Z reading to dip below zero.  You should recieve a text alert and you will also see a different AnomalyScore and Isanomaly reading in the Telemetry SQL table.
 
 ### Power BI Report Configuration ###
 
@@ -298,3 +270,18 @@ This report and PowerApp allow you to supplement consumption data with the follo
     3. Resize and test the Power App.  Your values will show in the Power BI report once you refresh the dataset and the report.
 8. Save your Power BI Report.
 9. You can publish your report to the Power BI Web service using these [instructions](https://docs.microsoft.com/en-us/power-bi/create-reports/desktop-upload-desktop-files).
+
+
+### PowerApp Configuration ###
+1. We will start by downloading the PowerApp configuration file from the internal Teams Site.  Click <a href="https://microsoft.sharepoint.com/:u:/t/ScottTestSite/ESd1W-6txCNJmB2XU6FQ6bQBntMfnNaeb5Wsy4xS0Y040Q?e=hrkQP6" target="_blank">here</a> to download.
+2. Go to the [PowerApps Portal](https://powerapps.microsoft.com) and click on Apps in the left nav bar.
+3. Click _Import Canvas App_ from the toolbar and upload the file.
+4. On the Import package screen set the following and click _Import_.
+    1. _Customer Subscription INFO_: Via the ACTION control, set the IMPORT SETUP to be _create as new_ and click the Import button below.
+    2. _Related Resources - SQL Server Connection_: Via the ACTION control, create a new SQL Server Connection pointing to the AzureSubscriptions database on your newly created SQL Server and select it so the new connection shows under IMPORT SETUP.
+
+![picture alt](/images/PowerApps-ImportPackage.png "PowerApps")
+
+5. Once finished your Power App should be live, you can test it within PowerApps.  It is time to move onto the Power BI report.
+
+
