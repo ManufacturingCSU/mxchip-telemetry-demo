@@ -1,0 +1,135 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "streamAnalyticsNamePrefix": {
+            "defaultValue":"streamanalytics",
+            "type": "String"
+        },
+        "IoTHubNamePrefix": {
+            "type": "SecureString",
+            "defaultValue":"iothub"
+        },
+        "ServiceBusNamespacePrefix": {
+            "type": "String",
+            "defaultvalue": "sbnamespace"
+    },
+    },
+    "variables": {
+        "IoTHubName": "[concat( parameters('IoTHubNamePrefix'), uniqueString(resourceGroup().id) )]",
+        "ServiceBusNamespace": "[concat( parameters('ServiceBusNamespacePrefix'), uniqueString(resourceGroup().id) )]",
+        "streamAnalyticsName": "[concat( parameters('streamAnalyticsNamePrefix'), uniqueString(resourceGroup().id) )]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.StreamAnalytics/streamingjobs",
+            "apiVersion": "2021-10-01-preview",
+            "name": "[variables('streamAnalyticsName')]",
+            "location": "East US",
+            "sku": {
+                "name": "Standard",
+                "capacity": 3
+            },
+            "properties": {
+                "sku": {
+                    "name": "Standard"
+                },
+                //"outputStartMode": "JobStartTime",
+                //"outputStartTime": "2022-07-11T12:44:53.343Z",
+                "eventsOutOfOrderPolicy": "Adjust",
+                "outputErrorPolicy": "Stop",
+                "eventsOutOfOrderMaxDelayInSeconds": 0,
+                "eventsLateArrivalMaxDelayInSeconds": 5,
+                "dataLocale": "en-US",
+                "compatibilityLevel": "1.2",
+                "contentStoragePolicy": "SystemAccount",
+                "jobType": "Cloud"
+            }
+        },
+        {
+            "type": "Microsoft.StreamAnalytics/streamingjobs/inputs",
+            "apiVersion": "2021-10-01-preview",
+            "name": "[concat(variables('streamAnalyticsName'), '/iothub')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.StreamAnalytics/streamingjobs', variables('streamAnalyticsName'))]"
+            ],
+            "properties": {
+                "type": "Stream",
+                "datasource": {
+                    "type": "Microsoft.Devices/IotHubs",
+                    "properties": {
+                        "iotHubNamespace": "iothubpc26ezay2cdvs",
+                        "sharedAccessPolicyName": "iothubowner",
+                        //"sharedAccessPolicyKey":"HostName=iothubpc26ezay2cdvs.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=6lUd8aeyHnofr4Y7soz6F8cy9++7zzx/8SbKYeAtQOc=",
+                        "sharedAccessPolicyKey":"[concat('HostName=', reference(resourceId('Microsoft.Devices/IoTHubs', variables('IoTHubName')), providers('Microsoft.Devices', 'IoTHubs').apiVersions[0]).hostName, ';SharedAccessKeyName=iothubowner;SharedAccessKey=', listKeys(resourceId('Microsoft.Devices/IotHubs', variables('IoTHubName')), providers('Microsoft.Devices', 'IoTHubs').apiVersions[0]).value[0].primaryKey)]",
+                        "endpoint": "messages/events",
+                        "consumerGroupName": "telemetry"
+                    }
+                },
+                "compression": {
+                    "type": "None"
+                },
+                "serialization": {
+                    "type": "Json",
+                    "properties": {
+                        "encoding": "UTF8"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.StreamAnalytics/streamingjobs/outputs",
+            "apiVersion": "2021-10-01-preview",
+            "name": "[concat(variables('streamAnalyticsName'), '/servicebusqueue')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.StreamAnalytics/streamingjobs', variables('streamAnalyticsName'))]"
+            ],
+            "properties": {
+                "datasource": {
+                    "type": "Microsoft.ServiceBus/Queue",
+                    "properties": {
+                        "queueName": "sms",
+                        "propertyColumns": [],
+                        "systemPropertyColumns": {},
+                        "serviceBusNamespace": "[variables('serviceBusNamespace')]",
+                        "sharedAccessPolicyName": "RootManageSharedAccessKey",
+                        //"sharedAccessPolicyKey":"Endpoint=sb://sbnamespacepc26ezay2cdvs.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=laXRiewoa4TAT4yJxdOBTXffpQ6qnrQuJi0LQpDmxlk=",
+                        //"sharedAccessPolicyKey":"[listKeys(resourceId('Microsoft.ServiceBus/namespaces/AuthorizationRules',variables('serviceBusNamespace'),'RootManageSharedAccessKey'),'2015-08-01').primaryConnectionString]",
+                        "sharedAccessPolicyKey":"[listKeys(resourceId('Microsoft.ServiceBus/namespaces/authorizationRules',variables('serviceBusNamespace'), 'RootManageSharedAccessKey'), '2017-04-01').primaryConnectionString]",
+                        "authenticationMode": "ConnectionString"
+                    }
+                },
+                "serialization": {
+                    "type": "Json",
+                    "properties": {
+                        "encoding": "UTF8",
+                        "format": "Array"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.StreamAnalytics/streamingjobs/outputs",
+            "apiVersion": "2021-10-01-preview",
+            "name": "[concat(variables('streamAnalyticsName'), '/sql')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.StreamAnalytics/streamingjobs', variables('streamAnalyticsName'))]"
+            ],
+            "properties": {
+                "datasource": {
+                    "type": "Microsoft.Sql/Server/Database",
+                    "properties": {
+                        "maxWriterCount": 1,
+                        "maxBatchCount": 10000,
+                        "table": "[[dbo].[Telemetry]",
+                        "server": "sqlpc26ezay2cdvs",
+                        "database": "IoT",
+                        "user": "jobender",
+                        "password":"MSFT@zure!!!",
+                        "authenticationMode": "ConnectionString"
+                    }
+                }
+            }
+        }
+    ]
+}

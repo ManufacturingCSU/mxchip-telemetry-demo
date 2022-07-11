@@ -7,14 +7,13 @@ Please clone this repository to a local directory on your computer using the fol
 
 In order to add all the components above, we will need to create a new resource group within Azure and add the following components:
 * IoT Hub
-* Stream Analytics
 * Azure Storage Account
 * SQL Server
 * SQL Database
-* Azure Function
 * Service Bus
 * 2 API Connections
 * Logic App
+* Stream Analytics
 
 #### Creating the Resource Group ####
 
@@ -31,30 +30,29 @@ You can use the following code to get a listing of the Azure regions that you ca
 az account list-locations -o table
 ```
 
-#### Deploying the Azure Assets within the Resource Group ####
+#### Deploying the Azure Assets within the Resource Group (First Pass) ####
 
 Next we need to deploy the following resources within the Resource Group:
 * IoT Hub
-* Stream Analytics
 * Azure Storage Account
 * SQL Server
 * SQL Database
 * Azure Function
 * Service Bus
 * 2 API Connections
-* Logic App
 
-This will be done using the *01-azuredeploy.json* and *01-azuredeploy_parameters.json* ARM template files in the arm folder of this repository.  After you have cloned this directory, there are two steps to follow...
-1. Open the *01-azuredeploy_paramaters.json* file and add the values needed for any section with  _insert value here_
+
+This will be done using the *00-azuredeploy_parameters.json* and *01-azuredeploy.json* ARM template files in the arm folder of this repository.  After you have cloned this directory, there are two steps to follow...
+1. Open the *00-azuredeploy_paramaters.json* file and add the values needed for any section with  _insert value here_
     1. objectid - This is found under your user profile within Azure Active Directory setting within the Azure portal 
     2. tenantid - This is found under the Azure Active Directory setting within the Azure portal
 2. Open powershell and navigate to the arm directory of this cloned repository and run the following command:
 ```javascript
 $parameters = @{
-    'Name' = 'MXChip Telemetry Deployment'
+    'Name' = 'MXChip Telemetry Deployment1'
     'ResourceGroupName' = '<insert your resource group name from above>'
     'TemplateFile'      = '01-azuredeploy.json'
-    'TemplateParameterFile' = '01-azuredeploy_parameters.json'
+    'TemplateParameterFile' = '00-azuredeploy_parameters.json'
     'Verbose' = $true
 }
 
@@ -62,7 +60,13 @@ New-AzResourceGroupDeployment @parameters
 ```
 Navigate to the [Azure Portal](https://pocrtal.azure.com) to view your resource group and the resources within it.
 
-### Post Deployment Steps ###
+#### Add Telemetry Consumer Group to the IoT Hub ####
+
+NOTE: This must be done before you run the additional azuredeploy.json script.
+
+1. Go to your IoT HUb in the Azure portal and click on the Built-in endpoints blade
+2. Add _telemetry_ as a new Consumer Group.
+3. Click Save if needed
 
 #### Update the API Connections ####
 
@@ -89,7 +93,7 @@ GO
 CREATE TABLE [dbo].[Telemetry](
 	[MessageID] [bigint] IDENTITY(1,1) NOT NULL,
 	[Device] [varchar](100) NOT NULL,
-	[WindowEnd] [datetime2](7) NOT NULL,
+	[WindowEnd] [datetime] NOT NULL,
 	[Celsius] [float] NULL,
 	[Fahrenheit] [float] NULL,
 	[Humidity] [float] NULL,
@@ -110,6 +114,27 @@ GO
 
 ```
 
+#### Deploying the Azure Assets within the Resource Group (Second Pass) ####
+
+After the steps above have been completed, we need to deploy the following resources within the Resource Group:
+* Stream Analytics
+* Logic App
+
+This will be done using the *00-azuredeploy_parameters.json* and *02-azuredeploy.json* ARM template files in the arm folder of this repository.  After you have cloned this directory, perform the following...
+1. Open powershell and navigate to the arm directory of this cloned repository and run the following command:
+```javascript
+$parameters = @{
+    'Name' = 'MXChip Telemetry Deployment1'
+    'ResourceGroupName' = '<insert your resource group name from above>'
+    'TemplateFile'      = '02-azuredeploy.json'
+    'TemplateParameterFile' = '00-azuredeploy_parameters.json'
+    'Verbose' = $true
+}
+
+New-AzResourceGroupDeployment @parameters
+```
+
+### Post Deployment Steps ###
 
 
 ### Verify the Setup ###
