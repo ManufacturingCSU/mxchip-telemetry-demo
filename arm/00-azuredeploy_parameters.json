@@ -24,31 +24,31 @@
             "value": "logicapp"
         },
         "TwilioPhoneNumber": {
-            "value": "19782212719"
+            "value": "<insert value here>"
         },
         "streamAnalyticsNamePrefix": {
-            "value": "streamanalyticsjb"
+            "value": "streamanalytics"
         },
         "serverNamePrefix": {
             "value": "sql"
         },
         "serverAdminUsername": {
-            "value": "jobender"
+            "value": "<insert value here>"
         },
         "serverAdminPassword": {
-            "value": "MSFT@zur3!!!"
+            "value": "<insert value here>"
         },
         "Serverlogin": {
-            "value": "jobender@microsoft.com"
+            "value": "<insert value here>"
         },
         "subscriptionid": {
-            "value": "c74df6e4-9f8a-488c-90d2-2ded5686ef83"
+            "value": "<insert value here>"
         },     
         "objectid": {
-            "value": "7956294b-d74e-4ccc-946c-da3472575be7"
+            "value": "<insert value here>"
         },        
         "tenantid": {
-            "value": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+            "value": "<insert value here>"
         }
     }
 }
