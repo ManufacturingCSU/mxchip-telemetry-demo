@@ -133,9 +133,97 @@ $parameters = @{
 
 New-AzResourceGroupDeployment @parameters
 ```
-
 ### Post Deployment Steps ###
 
+#### Verify/Update the Stream Analytics Jobs ####
+
+1. From within the Portal open up the Stream Analytics Job and Test the connections below.  
+    a. Input - iothub:  If this fails change the value under the _shared access policy name_ and then change it back to _iothubowner_ and click save.
+    b. Output - servicebusqueue:  If this fails change the value under the _authentication mode_ and then change it back to _Connection string_ and click save.
+2. Within the query section, add the code below and Save the query.  
+    _Make sure to add your phone number under the Service Bus section in the script._  
+
+```sql
+
+--MX Chip Telemetry Data
+WITH Telemetry 
+AS 
+
+(   
+    SELECT    
+        Stream.IoTHub.ConnectionDeviceId as Device
+        ,0 as simulated    
+        ,System.TimeStamp AS WindowEnd    
+        ,AVG(Stream.humidity) as humidity    
+        ,AVG(Stream.temp) as celsius    
+        ,AVG(((Stream.temp*1.8)+32)) as fahrenheit    
+        ,AVG(Stream.pressure) as pressure    
+        ,AVG(Stream.magnetometerX) as magnetometerX    
+        ,AVG(Stream.magnetometerY) as magnetometerY    
+        ,AVG(Stream.magnetometerZ) as magnetometerZ    
+        ,AVG(Stream.accelerometerX) as accelerometerX    
+        ,AVG(Stream.accelerometerY) as accelerometerY    
+        ,AVG(Stream.accelerometerZ) as accelerometerZ    
+        ,AVG(Stream.gyroscopeX) as gyroscopeX    
+        ,AVG(Stream.gyroscopeY) as gyroscopeY    
+        ,AVG(Stream.gyroscopeZ) as gyroscopeZ
+        ,CASE
+            WHEN AVG(Stream.accelerometerZ) < 0 THEN 100
+            ELSE 0
+        END AS anomalyscore
+	    ,CASE
+            WHEN AVG(Stream.accelerometerZ) < 0 THEN 1
+            ELSE 0
+        END AS isanomaly
+        
+    FROM iothub Stream TIMESTAMP BY IoTHub.EnqueuedTime
+    GROUP BY Stream.IoTHub.ConnectionDeviceId, TumblingWindow(second, 15)
+)
+
+-- Send summarized data to SQL
+SELECT 
+      Device
+    , CAST(System.TimeStamp as datetime) AS WindowEnd
+    , CAST(celsius as float) AS Celsius
+	, CAST(fahrenheit as float) as Fahrenheit
+	, CAST(humidity as float) as Humidity
+	, CAST(pressure as float) as Pressure
+    , CAST(accelerometerx as float) as AccelerometerX
+	, CAST(accelerometery as float) as AccelerometerY
+	, CAST(accelerometerz as float) as AccelerometerZ
+	, CAST(anomalyscore as float) as anomalyscore
+	, CAST(isanomaly as bigint) as isanomaly
+
+INTO sql
+FROM Telemetry
+
+/*
+-- Pass Anomalies into the Function 
+SELECT     
+      deviceid AS Device 
+    , windowend AS Time
+    ,'Accelerometer Z' AS ReadingType    
+    , ROUND(AccelerometerZ, 1) as reading 
+    , isanomaly AS abn
+INTO function
+FROM Telemetry
+WHERE isanomaly = 1
+*/
+
+-- Send Alerts to Service Bus Message Queue for Sending a Text Alert
+SELECT 
+    Device as device
+    ,'<insert your mobile phone number here>' as phone
+    ,'Accelerometer Z' AS readingtype
+    ,ROUND(AccelerometerZ, 1) as reading
+	,windowend as time
+	,isanomaly 
+
+INTO servicebusqueue
+FROM Telemetry
+WHERE isanomaly = 1
+
+```
 
 ### Verify the Setup ###
 
