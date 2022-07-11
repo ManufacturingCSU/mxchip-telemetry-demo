@@ -20,6 +20,12 @@
         "ConnectionsServicebusName": {
             "value": "servicebus"
         },
+        "LogicAppNamePrefix": {
+            "value": "logicapp"
+        },
+        "TwilioPhoneNumber": {
+            "value":"19782212719"
+        },
         "serverNamePrefix": {
             "value": "sql"
         },

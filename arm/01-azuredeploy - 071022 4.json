@@ -38,18 +38,6 @@
         "description": "Specifies the API Connection Name for the Logic App to the Service Bus Namespace."
       }
     },
-    "LogicAppNamePrefix": {
-      "type": "String",
-      "metadata": {
-        "description": "Specifies the Logic App Name."
-      }
-    },
-    "TwilioPhoneNumber": {
-      "type": "String",
-      "metadata": {
-        "description": "Specifies the telephone number associated with your Twilio Account."
-      }
-    },
     "serverNamePrefix": {
       "type": "string",
       "metadata": {
@@ -99,7 +87,6 @@
     "storageAccountName": "[toLower( concat( parameters('storageAccountNamePrefix'), uniqueString(resourceGroup().id) ) )]",
     "serverName": "[concat( parameters('serverNamePrefix'), uniqueString(resourceGroup().id) )]",
     "ServiceBusNamespace": "[concat( parameters('ServiceBusNamespacePrefix'), uniqueString(resourceGroup().id) )]",
-    "LogicAppName": "[concat( parameters('LogicAppNamePrefix'), uniqueString(resourceGroup().id) )]",
     "resourceGroupName": "[resourceGroup().name]",
     "location": "[resourceGroup().location]",
     "tags": "[resourceGroup().tags]"
@@ -380,6 +367,7 @@
               "iconUri": "[concat('https://connectoricons-prod.azureedge.net/releases/v1.0.1568/1.0.1568.2757/', parameters('ConnectionsServicebusName'), '/icon.png')]",
               "brandColor": "#c4d5ff",
               "id": "[concat('/subscriptions/',parameters('subscriptionid'), '/providers/Microsoft.Web/locations/', variables('location'), '/managedApis/', parameters('ConnectionsServicebusName'))]",
+              //"id": "[concat('/subscriptions/c74df6e4-9f8a-488c-90d2-2ded5686ef83/providers/Microsoft.Web/locations/eastus/managedApis/', parameters('ConnectionsServicebusName'))]",
               "type": "Microsoft.Web/locations/managedApis"
           },
           "testLinks": []
@@ -408,7 +396,7 @@
                 "description": "Twilio enables apps to send and receive global SMS, MMS and IP messages.", 
                 "iconUri": "https://connectoricons-prod.azureedge.net/releases/v1.0.1450/1.0.1450.2361/twilio/icon.png",
                 "brandColor": "#e22228",
-                "id": "[concat('/subscriptions/', parameters('subscriptionid'), '/providers/Microsoft.Web/locations/', variables('location'), '/managedApis/', parameters('ConnectionTwilioName'))]",
+                "id": "[concat('/subscriptions/', parameters('subscriptionid'), '/providers/Microsoft.Web/locations/', variables('location'), '/managedApis/twilio')]",
                 "type": "Microsoft.Web/locations/managedApis"
             },
             "testLinks": [
@@ -417,125 +405,6 @@
                     "method": "get"
                 }
             ]
-        }
-    },
-
-    {
-        "type": "Microsoft.Logic/workflows",
-        "apiVersion": "2017-07-01",
-        "name": "[variables('LogicAppName')]",
-        "location": "[variables('location')]",
-        "tags": "[variables('tags')]",
-        "properties": {
-            "state": "Enabled",
-            "definition": {
-                "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-                "contentVersion": "1.0.0.0",
-                "parameters": {
-                    "$connections": {
-                        "defaultValue": {},
-                        "type": "Object"
-                    }
-                },
-                "triggers": {
-                    "Service_Bus_Queue": {
-                        "recurrence": {
-                            "frequency": "Second",
-                            "interval": 30
-                        },
-                        "evaluatedRecurrence": {
-                            "frequency": "Second",
-                            "interval": 30
-                        },
-                        "type": "ApiConnection",
-                        "inputs": {
-                            "host": {
-                                "connection": {
-                                    "name": "@parameters('$connections')['servicebus']['connectionId']"
-                                }
-                            },
-                            "method": "get",
-                            "path": "/@{encodeURIComponent(encodeURIComponent('sms'))}/messages/head",
-                            "queries": {
-                                "queueType": "Main"
-                            }
-                        }
-                    }
-                },
-                "actions": {
-                    "Parse_JSON": {
-                        "runAfter": {},
-                        "type": "ParseJson",
-                        "inputs": {
-                            "content": "@json(decodeBase64(triggerBody()?['ContentData']))",
-                            "schema": {
-                                "properties": {
-                                    "device": {
-                                        "type": "string"
-                                    },
-                                    "isanomaly": {
-                                        "type": "number"
-                                    },
-                                    "phone": {
-                                        "type": "string"
-                                    },
-                                    "reading": {
-                                        "type": "number"
-                                    },
-                                    "readingtype": {
-                                        "type": "string"
-                                    },
-                                    "time": {
-                                        "type": "string"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    },
-                    "Send_Text_Message_(SMS)": {
-                        "runAfter": {
-                            "Parse_JSON": [
-                                "Succeeded"
-                            ]
-                        },
-                        "type": "ApiConnection",
-                        "inputs": {
-                            "body": {
-                                "body": "An anomalous reading was recorded for the following device: @{body('Parse_JSON')?['device']} at  @{substring(body('Parse_JSON')?['time'], 0, 19)}.  For more information go to https://apps.preview.powerapps.com/play/bebb0634-9424-4063-967b-8791e1151f42?tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47",
-                                "from": "[parameters('TwilioPhoneNumber')]",
-                                "to": "@body('Parse_JSON')?['phone']"
-                            },
-                            "host": {
-                                "connection": {
-                                    "name": "@parameters('$connections')['twilio']['connectionId']"
-                                }
-                            },
-                            "method": "post",
-                            "path": "/Messages.json"
-                        }
-                    }
-                },
-                "outputs": {}
-            },
-            "parameters": {
-                "$connections": {
-                    "value": {
-                        "servicebus": {
-                            "connectionId": "[parameters('ConnectionsServicebusName')]",
-                            "connectionName": "servicebus",
-                            //"id": "/subscriptions/c74df6e4-9f8a-488c-90d2-2ded5686ef83/providers/Microsoft.Web/locations/eastus/managedApis/servicebus"
-                            "id": "[concat('/subscriptions/',parameters('subscriptionid'), '/providers/Microsoft.Web/locations/', variables('location'), '/managedApis/', parameters('ConnectionsServicebusName'))]"
-                        },
-                        "twilio": {
-                            "connectionId": "[parameters('ConnectionTwilioName')]",
-                            "connectionName": "twilio",
-                            //"id": "/subscriptions/c74df6e4-9f8a-488c-90d2-2ded5686ef83/providers/Microsoft.Web/locations/eastus/managedApis/twilio"
-                            "id": "[concat('/subscriptions/', parameters('subscriptionid'), '/providers/Microsoft.Web/locations/', variables('location'), '/managedApis/', parameters('ConnectionTwilioName'))]"
-                        }
-                    }
-                }
-            }
         }
     },
     {
