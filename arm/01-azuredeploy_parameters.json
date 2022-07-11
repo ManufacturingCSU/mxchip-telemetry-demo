@@ -14,10 +14,10 @@
         "ServiceBusNamespacePrefix": {
             "value": "sbnamespace"
         },
-        "ConnectionTwilioNamePrefix": {
+        "ConnectionTwilioName": {
             "value": "twilio"
         },
-        "ConnectionsServicebusNamePrefix": {
+        "ConnectionsServicebusName": {
             "value": "servicebus"
         },
         "serverNamePrefix": {

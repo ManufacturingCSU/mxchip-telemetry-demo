@@ -26,11 +26,17 @@
         "description": "Specifies the name of the Service Bus Namespace."
       }
     },
-    "ConnectionTwilioNamePrefix": {
-      "type": "String"
+    "ConnectionTwilioName": {
+      "type": "String",
+      "metadata": {
+        "description": "Specifies the API Connection Name for the Logic App to Twilio."
+      }
     },
-    "ConnectionsServicebusNamePrefix": {
-      "type": "String"
+    "ConnectionsServicebusName": {
+      "type": "String",
+      "metadata": {
+        "description": "Specifies the API Connection Name for the Logic App to the Service Bus Namespace."
+      }
     },
     "serverNamePrefix": {
       "type": "string",
@@ -81,8 +87,6 @@
     "storageAccountName": "[toLower( concat( parameters('storageAccountNamePrefix'), uniqueString(resourceGroup().id) ) )]",
     "serverName": "[concat( parameters('serverNamePrefix'), uniqueString(resourceGroup().id) )]",
     "ServiceBusNamespace": "[concat( parameters('ServiceBusNamespacePrefix'), uniqueString(resourceGroup().id) )]",
-    "ConnectionTwilioName": "[concat( parameters('ConnectionTwilioNamePrefix'), uniqueString(resourceGroup().id) )]",
-    "ConnectionsServicebusName": "[concat( parameters('ConnectionsServicebusNamePrefix'), uniqueString(resourceGroup().id) )]",
     "resourceGroupName": "[resourceGroup().name]",
     "location": "[resourceGroup().location]",
     "tags": "[resourceGroup().tags]"
@@ -310,7 +314,7 @@
         "properties": {
             "publicNetworkAccess": "Enabled",
             "defaultAction": "Allow",
-            "virtualNetworkRules": [],
+            //"virtualNetworkRules": [],
             "ipRules": []
         }
     },
@@ -339,10 +343,10 @@
             "enableExpress": false
         }
     },
-    {
+   {
       "type": "Microsoft.Web/connections",
       "apiVersion": "2016-06-01",
-      "name": "[variables('ConnectionsServicebusName')]",
+      "name": "[parameters('ConnectionsServicebusName')]",
       "location": "[variables('location')]",
       "kind": "V1",
       "properties": {
@@ -357,12 +361,13 @@
           //"createdTime": "2021-09-12T22:21:28.9871474Z",
           //"changedTime": "2021-09-12T22:21:28.9871474Z",
           "api": {
-              "name": "[variables('ConnectionsServicebusName')]",
+              "name": "[parameters('ConnectionsServicebusName')]",
               "displayName": "Service Bus",
               "description": "Connect to Azure Service Bus to send and receive messages. You can perform actions such as send to queue, send to topic, receive from queue, receive from subscription, etc.",
-              "iconUri": "[concat('https://connectoricons-prod.azureedge.net/releases/v1.0.1568/1.0.1568.2757/', variables('ConnectionsServicebusName'), '/icon.png')]",
+              "iconUri": "[concat('https://connectoricons-prod.azureedge.net/releases/v1.0.1568/1.0.1568.2757/', parameters('ConnectionsServicebusName'), '/icon.png')]",
               "brandColor": "#c4d5ff",
-              "id": "[concat('/subscriptions/',parameters('subscriptionid'), '/providers/Microsoft.Web/locations/', variables('location'), '/managedApis/', variables('ConnectionsServicebusName'))]",
+              "id": "[concat('/subscriptions/',parameters('subscriptionid'), '/providers/Microsoft.Web/locations/', variables('location'), '/managedApis/', parameters('ConnectionsServicebusName'))]",
+              //"id": "[concat('/subscriptions/c74df6e4-9f8a-488c-90d2-2ded5686ef83/providers/Microsoft.Web/locations/eastus/managedApis/', parameters('ConnectionsServicebusName'))]",
               "type": "Microsoft.Web/locations/managedApis"
           },
           "testLinks": []
@@ -371,11 +376,11 @@
       {
         "type": "Microsoft.Web/connections",
         "apiVersion": "2016-06-01",
-        "name": "[variables('ConnectionTwilioName')]",
+        "name": "[parameters('ConnectionTwilioName')]",
         "location": "[variables('location')]",
         "kind": "V1",
         "properties": {
-            "displayName": "jbender twilio",
+            "displayName": "twilio",
             "statuses": [
                 {
                     "status": "Connected"
@@ -396,7 +401,7 @@
             },
             "testLinks": [
                 {
-                    "requestUri": "[concat('https://management.azure.com:443/subscriptions/', parameters('subscriptionid'),'/resourceGroups/',variables('resourceGroupName'),'/providers/Microsoft.Web/connections/', variables('ConnectionTwilioName'), '/extensions/proxy/Messages.json?api-version=2016-06-01')]",
+                    "requestUri": "[concat('https://management.azure.com:443/subscriptions/', parameters('subscriptionid'),'/resourceGroups/',variables('resourceGroupName'),'/providers/Microsoft.Web/connections/', parameters('ConnectionTwilioName'), '/extensions/proxy/Messages.json?api-version=2016-06-01')]",
                     "method": "get"
                 }
             ]
