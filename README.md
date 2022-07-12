@@ -70,7 +70,7 @@ Navigate to the [Azure Portal](https://pocrtal.azure.com) to view your resource 
 Even though we created the API Connections, we still need to update them with the appropriate values
 
 servicebus - API Connection:  
-1. Copy the _Primary Connection String_ from the _RooManageSharedAccessKey_ under the Shared access policies blade of your newly created Service Bus Namspace.
+1. Copy the _Primary Connection String_ from the _RootManageSharedAccessKey_ under the Shared access policies blade of your newly created Service Bus Namspace.
 2. Go to the _servicebus - API Connection_ and on the _Edit API connection_ blade copy that value into the _Connection String_ field and click Save.
 
 twilio - API Connection:
@@ -82,7 +82,7 @@ To use the text messaging component for the alerts, we must use [Twilio](https:/
 
 Modify the Firewall settings
 
-1. Navigate to your SQL Server and under the Netowrks blade:
+1. Navigate to your SQL Server and under the Networks blade:
    a. Add your IP address
    b. Set _Allow Azure services and resources to access this server_ to Yes.
    c. Save your firewall settings. 
@@ -127,7 +127,7 @@ After the steps above have been completed, we need to deploy the following resou
 * Logic App
 
 This will be done using the *00-azuredeploy_parameters.json* and *02-azuredeploy.json* ARM template files in the arm folder of this repository...
-1. Open powershell and navigate to the arm directory of this cloned repository and run the following command:
+1. Open a powershell window and navigate to the arm directory of this cloned repository and run the following command:
 ```javascript
 $parameters = @{
     'Name' = 'MXChip Telemetry Deployment1'
@@ -144,8 +144,8 @@ New-AzResourceGroupDeployment @parameters
 #### Verify/Update the Stream Analytics Jobs ####
 
 1. From within the Portal open up the Stream Analytics Job and Test the connections below.  
-    a. Input - iothub:  If this fails change the value under the _shared access policy name_ and then change it back to _iothubowner_ and click save.
-    b. Output - servicebusqueue:  If this fails change the value under the _authentication mode_ and then change it back to _Connection string_ and click save.
+    a. Input - iothub:  If this fails change the value under the _shared access policy name_ and then change it back to _iothubowner_ and click save.<br>
+    b. Output - servicebusqueue:  If this fails change the value under the _authentication mode_ and then change it back to _Connection string_ and click save.<br>
     c. Output - sql.  You may have to re-enter the password.
 2. Within the query section, add the code below and Save the query.  
     _Make sure to add your phone number under the Service Bus section in the script._  
