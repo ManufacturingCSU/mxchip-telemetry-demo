@@ -126,7 +126,7 @@ After the steps above have been completed, we need to deploy the following resou
 * Stream Analytics
 * Logic App
 
-This will be done using the *00-azuredeploy_parameters.json* and *02-azuredeploy.json* ARM template files in the arm folder of this repository.  After you have cloned this directory, perform the following...
+This will be done using the *00-azuredeploy_parameters.json* and *02-azuredeploy.json* ARM template files in the arm folder of this repository...
 1. Open powershell and navigate to the arm directory of this cloned repository and run the following command:
 ```javascript
 $parameters = @{
