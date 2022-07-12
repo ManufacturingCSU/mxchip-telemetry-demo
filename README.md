@@ -238,14 +238,15 @@ WHERE isanomaly = 1
 1.	Within the Azure Portal, go to the IoT HUb and click on the Devices Blade and click + Add New Device.   
 2.	Name the device _AZ3166_ and click Save
 3.	Next, we need to capture our Device Connection string.  Click on your device within the Devices listing to open its properties and copy the Primary Connection String.  Paste this into Notepad for later use.
-4.	Plug in the MX Chip into your computer's USB port, it should show as a new drive.
+4.	Plug in the MX Chip into your computer's USB port, it should show as a new drive within File Explorer.
 5.  Using File Explorer, copy the _AZ3166-IoT-Central-2.1.2.bin_ file from the mxchip directory of this repo to the root of your device.
-6.	When the MXChip reboots, you should see a Wifi SID on the display.  Disconnect your PC from your current Wifi and connect to that SID
-7.  Once connected, go to http://192.168.0.1/start make sure to copy your <b>Connection string – primary key</b> from Notepad into the <b>Device connection string</b> field and select all checkboxes listed.<br>&nbsp;<br>
+6.	When the MXChip reboots, you should see a Wifi SID on the display.  Disconnect your PC from your current Wifi and connect to that SID.
+7.  Once connected, go to http://192.168.0.1/start and change the _SAS Key_ value in the drop down to _COnnection String_.
+8. Copy your <b>Connection string – primary key</b> from Notepad into the <b>Device connection string</b> field and select all checkboxes listed.<br>&nbsp;<br>
 
 ![picture alt](/images/Configure-MXChip.png "Configuure MX Chip")
 
-Click the <b>Configure Device</b> button and if needed, click the reset button on the MX Chip.<br>&nbsp;<br>
+9. Click the <b>Configure Device</b> button and if needed, click the reset button on the MX Chip.<br>&nbsp;<br>
 NOTE:  If you do not get the Device connection string field in the window above, try doing a hard reset on the MX CHIP by holding down both the A & B buttons for a few seconds.
 
 8.	Now you should see telemetry coming from your custom named AZ3166.  You can view this by downloading <a href="https://docs.microsoft.com/en-us/azure/iot-fundamentals/howto-use-iot-explorer" target="_blank">Azure IoT Explorer</a>.
