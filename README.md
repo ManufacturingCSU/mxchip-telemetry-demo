@@ -38,10 +38,12 @@ Next we need to deploy the following resources within the Resource Group:
 
 
 This will be done using the *00-azuredeploy_parameters.json* and *01-azuredeploy.json* ARM template files in the arm folder of this repository.  After you have cloned this directory, there are two steps to follow...
-1. Open the *00-azuredeploy_paramaters.json* file and add the values needed for any section that has _<insert value here>_.  
-    1. objectid - This is found under your user profile within Azure Active Directory setting within the Azure portal 
-    2. tenantid - This is found under the Azure Active Directory setting within the Azure portal
-2. Open powershell and navigate to the arm directory of this cloned repository and run the following command:
+1. Open the *00-azuredeploy_paramaters.json* file and add the values needed for any section that has _<insert value here>_. The following are pointers to finding this information.
+    1. serverlogin - This property is for the Azure SQL Server.  This is your microsoft email address.
+    2. subscriptionid - Azure subscription ID
+    3. objectid - This is found under your user profile within Azure Active Directory setting within the Azure portal 
+    4. tenantid - This is found under the Azure Active Directory setting within the Azure portal
+2. Open a powershell window and navigate to the arm directory of this cloned repository and run the following command:
 ```javascript
 $parameters = @{
     'Name' = 'MXChip Telemetry Deployment1'
@@ -57,7 +59,7 @@ Navigate to the [Azure Portal](https://pocrtal.azure.com) to view your resource 
 
 #### Add Telemetry Consumer Group to the IoT Hub ####
 
-NOTE: This must be done before you run the additional azuredeploy.json script.
+<B>NOTE: This must be done before you run the additional deployment scripts.</b>
 
 1. Go to your IoT HUb in the Azure portal and click on the Built-in endpoints blade
 2. Add _telemetry_ as a new Consumer Group.
@@ -68,13 +70,13 @@ NOTE: This must be done before you run the additional azuredeploy.json script.
 Even though we created the API Connections, we still need to update them with the appropriate values
 
 servicebus - API Connection:  
-1. Copy the _Primary Connection String_ from the RooManageSharedAccessKey under the Shared access policies blade of your newly created Service Bus Namspace.
-2. Go to the servicebus - API Connection and on the _Edit API connection_ blade copy that value into the Connection String field and click Save.
+1. Copy the _Primary Connection String_ from the _RooManageSharedAccessKey_ under the Shared access policies blade of your newly created Service Bus Namspace.
+2. Go to the _servicebus - API Connection_ and on the _Edit API connection_ blade copy that value into the _Connection String_ field and click Save.
 
 twilio - API Connection:
-To use the text messaging component for the alers, we must use [Twilio](https://www.twilio.com/).  
+To use the text messaging component for the alerts, we must use [Twilio](https://www.twilio.com/).  
 1. To utilize this connection.  You need to create a Twilio account and create Twilio Account Id and Twilio Access Token.  For instructions to do so, go [here](https://www.twilio.com/docs/iam/access-tokens).
-2. Go to the servicebus - API Connection and on the _Edit API connection_ blade copy those values and click Save.
+2. Go to the _servicebus - API Connection_ and on the _Edit API connection_ blade copy the Twilio Account Id and Twilio Access Token values and click Save.
 
 #### Updating the SQL Server and IoT SQL Database ####
 
@@ -83,8 +85,8 @@ Modify the Firewall settings
 1. Navigate to your SQL Server and under the Netowrks blade:
    a. Add your IP address
    b. Set _Allow Azure services and resources to access this server_ to Yes.
-   c. Save your firewall settings and proceed to the next step. 
-2. Navigate to the IoT SQL Database and click on the Query editor (preview) blade and run the following SQL script to create the Telemetry table. 
+   c. Save your firewall settings. 
+2. Navigate to the _IoT_ SQL Database and click on the _Query editor (preview)_ blade and run the following SQL script to create the Telemetry table. 
 
 ```sql
 /****** Object:  Table [dbo].[Telemetry]    Script Date: 7/10/2022 3:33:35 PM ******/
