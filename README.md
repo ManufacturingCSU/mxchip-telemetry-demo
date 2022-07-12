@@ -275,8 +275,8 @@ This power app will allow you to add a Reason Code to any anomolous reading.  On
 
 ![picture alt](/images/PowerApps-ImportPackage.png "PowerApps")
 
-5. Once finished your Power App should be live, you can test it within PowerApps.  
-6. Copy the URL to your Power App as we will need that for the Power BI Report in the next section.
+6. Once finished your Power App should be live, you can test it within PowerApps.  
+7. Copy the URL to your Power App as we will need that for the Power BI Report in the next section.
 
 ### Power BI Report Configuration ###
 This report will show the live telemetry of the device from the IoT SQL database via a Direct Query connection.
