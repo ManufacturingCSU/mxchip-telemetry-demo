@@ -144,11 +144,11 @@ New-AzResourceGroupDeployment @parameters
 #### Verify/Update the Stream Analytics Jobs ####
 
 1. From within the Portal open up the Stream Analytics Job and Test the connections below.  
-    a. Input - iothub:  If this fails change the value under the _shared access policy name_ and then change it back to _iothubowner_ and click save.<br>
-    b. Output - servicebusqueue:  If this fails change the value under the _authentication mode_ and then change it back to _Connection string_ and click save.<br>
-    c. Output - sql.  You may have to re-enter the password.
+    a.  Input - iothub:  If this fails change the value under the _shared access policy name_ and then change it back to _iothubowner_ and click save.<br>
+    b.  Output - servicebusqueue:  If this fails change the value under the _authentication mode_ and then change it back to _Connection string_ and click save.<br>
+    c.  Output - sql.  You may have to re-enter the password.
 2. Within the query section, add the code below and Save the query.  
-    _Make sure to add your phone number under the Service Bus section in the script._  
+    NOTE: _Make sure to add your phone number under the Service Bus section in the script._  
 
 ```sql
 
