@@ -1,23 +1,18 @@
 # mxchip-telemetry-demo
-The purpose of this repository is to be able to deploy the MX Chip demonstration with a cold, warm and hot path scenario.  You will need to purchase an MXChip to utilize this demo.  For more information on the MX Chip, click <a href="http://www.mxchip.com/az3166" target="_blank">here</a>.  You can also purchase an MXChip off of Amazon.  Check out https://a.co/d/iYqCoqa. 
+The purpose of this repository is to be able to deploy the MX Chip demonstration with a cold, warm and hot path scenario...  
+
+![picture alt](/images/architecture.png "Architecture")
+
+You will need to purchase an MXChip to utilize this demo.  For more information on the MX Chip, click <a href="http://www.mxchip.com/az3166" target="_blank">here</a>.  You can also purchase an MXChip off of Amazon.  Check out https://a.co/d/iYqCoqa. 
 
 ### Setup ###
 
 Please clone this repository to a local directory on your computer using the following URL: `https://github.com/ManufacturingCSU/mxchip-telemetry-demo`
 
-In order to add all the components above, we will need to create a new resource group within Azure and add the following components:
-* IoT Hub
-* Azure Storage Account
-* SQL Server
-* SQL Database
-* Service Bus
-* 2 API Connections
-* Logic App
-* Stream Analytics
 
 #### Creating the Resource Group ####
 
-To get started, lets create the resource group using the commands below.  Using Powershell, run these commands:
+In order to add all the components above, lets create the resource group using the commands below.  Using Powershell, run these commands:
 
 ```javascript
 Connect-AzAccount
@@ -43,7 +38,7 @@ Next we need to deploy the following resources within the Resource Group:
 
 
 This will be done using the *00-azuredeploy_parameters.json* and *01-azuredeploy.json* ARM template files in the arm folder of this repository.  After you have cloned this directory, there are two steps to follow...
-1. Open the *00-azuredeploy_paramaters.json* file and add the values needed for any section with  _insert value here_
+1. Open the *00-azuredeploy_paramaters.json* file and add the values needed for any section that has _<insert value here>_.  
     1. objectid - This is found under your user profile within Azure Active Directory setting within the Azure portal 
     2. tenantid - This is found under the Azure Active Directory setting within the Azure portal
 2. Open powershell and navigate to the arm directory of this cloned repository and run the following command:
