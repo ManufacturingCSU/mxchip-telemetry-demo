@@ -12,7 +12,7 @@ Please clone this repository to a local directory on your computer using the fol
 
 #### Creating the Resource Group ####
 
-In order to add all the components above, lets create the resource group using the commands below.  Using Powershell, run these commands:
+In order to add all the components above, lets create the resource group using the commands below.  Open a Powershell window and run these commands:
 
 ```javascript
 Connect-AzAccount
@@ -38,8 +38,8 @@ Next we need to deploy the following resources within the Resource Group:
 
 
 This will be done using the *00-azuredeploy_parameters.json* and *01-azuredeploy.json* ARM template files in the arm folder of this repository.  After you have cloned this directory, there are two steps to follow...
-1. Open the *00-azuredeploy_paramaters.json* file and add the values needed for any section that has _<insert value here>_. The following are pointers to finding this information.
-    1. serverlogin - This property is for the Azure SQL Server.  This is your microsoft email address.
+1. Open the *00-azuredeploy_paramaters.json* file and add the values needed for any section that has _insert value here_. The following are pointers to finding this information.
+    1. serverlogin - This property is for the Azure SQL Server.  This is your Microsoft AAD email address.
     2. subscriptionid - Azure subscription ID
     3. objectid - This is found under your user profile within Azure Active Directory setting within the Azure portal 
     4. tenantid - This is found under the Azure Active Directory setting within the Azure portal
@@ -57,35 +57,36 @@ New-AzResourceGroupDeployment @parameters
 ```
 Navigate to the [Azure Portal](https://pocrtal.azure.com) to view your resource group and the resources within it.
 
+
 #### Add Telemetry Consumer Group to the IoT Hub ####
 
 <B>NOTE: This must be done before you run the additional deployment scripts.</b>
 
-1. Go to your IoT HUb in the Azure portal and click on the Built-in endpoints blade
+1. Go to your IoT HUb in the Azure portal and click on the _Built-in endpoints_ blade
 2. Add _telemetry_ as a new Consumer Group.
 3. Click Save if needed
+
 
 #### Update the API Connections ####
 
 Even though we created the API Connections, we still need to update them with the appropriate values
 
-servicebus - API Connection:  
-1. Copy the _Primary Connection String_ from the _RootManageSharedAccessKey_ under the Shared access policies blade of your newly created Service Bus Namspace.
+<b>servicebus - API Connection:</b>  
+1. Go to your newly created Service Bus Namspace, copy the _Primary Connection String_ from the _RootManageSharedAccessKey_ under the _Shared access policies_ blade.
 2. Go to the _servicebus - API Connection_ and on the _Edit API connection_ blade copy that value into the _Connection String_ field and click Save.
 
-twilio - API Connection:
+<b>twilio - API Connection:</b>
 To use the text messaging component for the alerts, we must use [Twilio](https://www.twilio.com/).  
-1. To utilize this connection.  You need to create a Twilio account and create Twilio Account Id and Twilio Access Token.  For instructions to do so, go [here](https://www.twilio.com/docs/iam/access-tokens).
+1. To utilize this connection.  You need to create a Twilio account and create _Twilio Account Id_ and _Twilio Access Token_.  For instructions to do so, go [here](https://www.twilio.com/docs/iam/access-tokens).
 2. Go to the _servicebus - API Connection_ and on the _Edit API connection_ blade copy the Twilio Account Id and Twilio Access Token values and click Save.
 
 #### Updating the SQL Server and IoT SQL Database ####
 
 Modify the Firewall settings
-
-1. Navigate to your SQL Server and under the Networks blade:
-   a. Add your IP address
-   b. Set _Allow Azure services and resources to access this server_ to Yes.
-   c. Save your firewall settings. 
+1. Navigate to your SQL Server and under the Networks blade:<br>
+   a. Add your IP address<br>
+   b. Set _Allow Azure services and resources to access this server_ to Yes.<br>
+   c. Save your firewall settings.<br> 
 2. Navigate to the _IoT_ SQL Database and click on the _Query editor (preview)_ blade and run the following SQL script to create the Telemetry table. 
 
 ```sql
@@ -126,11 +127,11 @@ After the steps above have been completed, we need to deploy the following resou
 * Stream Analytics
 * Logic App
 
-This will be done using the *00-azuredeploy_parameters.json* and *02-azuredeploy.json* ARM template files in the arm folder of this repository...
-1. Open a powershell window and navigate to the arm directory of this cloned repository and run the following command:
+This will be done using the *00-azuredeploy_parameters.json* and *02-azuredeploy.json* ARM template files in the arm folder of this repository.<br>&nbsp;<br>
+Open a powershell window and navigate to the arm directory of this cloned repository and run the following command:
 ```javascript
 $parameters = @{
-    'Name' = 'MXChip Telemetry Deployment1'
+    'Name' = 'MXChip Telemetry Deployment2'
     'ResourceGroupName' = '<insert your resource group name from above>'
     'TemplateFile'      = '02-azuredeploy.json'
     'TemplateParameterFile' = '00-azuredeploy_parameters.json'
@@ -145,10 +146,10 @@ New-AzResourceGroupDeployment @parameters
 
 1. From within the Portal open up the Stream Analytics Job and Test the connections below.  
     a.  Input - iothub:  If this fails change the value under the _shared access policy name_ and then change it back to _iothubowner_ and click save.<br>
-    b.  Output - servicebusqueue:  If this fails change the value under the _authentication mode_ and then change it back to _Connection string_ and click save.<br>
+    b.  Output - servicebusqueue:  If this fails toggle to a different value under the _authentication mode_ and then toggle it back to _Connection string_ and click save.<br>
     c.  Output - sql.  You may have to re-enter the password.
 2. Within the query section, add the code below and Save the query.  
-    NOTE: _Make sure to add your phone number under the Service Bus section in the script._  
+    NOTE: Make sure to add _your phone number_ under the Service Bus section in the script.  
 
 ```sql
 
@@ -235,12 +236,12 @@ WHERE isanomaly = 1
 
 #### Configure the MXChip ####
 
-1.	Within the Azure Portal, go to the IoT HUb and click on the Devices Blade and click + Add New Device.   
+1.	Within the Azure Portal, go to the IoT HUb and click on the Devices Blade and click _+ Add New Device_.   
 2.	Name the device _AZ3166_ and click Save
-3.	Next, we need to capture our Device Connection string.  Click on your device within the Devices listing to open its properties and copy the Primary Connection String.  Paste this into Notepad for later use.
+3.	Next, we need to capture our Device Connection string.  Click on your device within the _Devices listing_ to open its properties and copy the Primary Connection String.  Paste this into Notepad for later use.
 4.	Plug in the MX Chip into your computer's USB port, it should show as a new drive within File Explorer.
 5.  Using File Explorer, copy the _AZ3166-IoT-Central-2.1.2.bin_ file from the mxchip directory of this repo to the root of your device.
-6.	When the MXChip reboots, you should see a Wifi SID on the display.  Disconnect your PC from your current Wifi and connect to that SID.
+6.	When the MXChip reboots, you should see a Wifi SID on the display.  Disconnect your PC from your current Wifi and connect to that SID.  You will lose internet connectivity when you do so.
 7.  Once connected, go to http://192.168.0.1/start and change the _SAS Key_ value in the drop down to _COnnection String_.
 8. Copy your <b>Connection string – primary key</b> from Notepad into the <b>Device connection string</b> field and select all checkboxes listed.<br>&nbsp;<br>
 
