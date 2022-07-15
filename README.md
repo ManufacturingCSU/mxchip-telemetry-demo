@@ -46,7 +46,7 @@ This will be done using the *00-azuredeploy_parameters.json* and *01-azuredeploy
 2. Open a powershell window and navigate to the arm directory of this cloned repository and run the following command:
 ```javascript
 $parameters = @{
-    'Name' = 'MXChip Telemetry Deployment1'
+    'Name' = 'MXChipTelemetryDeployment1'
     'ResourceGroupName' = '<insert your resource group name from above>'
     'TemplateFile'      = '01-azuredeploy.json'
     'TemplateParameterFile' = '00-azuredeploy_parameters.json'
@@ -131,7 +131,7 @@ This will be done using the *00-azuredeploy_parameters.json* and *02-azuredeploy
 Open a powershell window and navigate to the arm directory of this cloned repository and run the following command:
 ```javascript
 $parameters = @{
-    'Name' = 'MXChip Telemetry Deployment2'
+    'Name' = 'MXChipelemetryDeployment2'
     'ResourceGroupName' = '<insert your resource group name from above>'
     'TemplateFile'      = '02-azuredeploy.json'
     'TemplateParameterFile' = '00-azuredeploy_parameters.json'
