@@ -267,17 +267,16 @@ select * from [dbo].[Telemetry] order by MessageID DESC
 This power app will allow you to add a Reason Code to any anomolous reading.  Once we import it, we will modiify the link in the Power BI report to point right to the App.
 
 1. We will start by downloading the PowerApp configuration file from the powerapp directory of this repository.  
-2. Go to the [PowerApps Portal](https://powerapps.microsoft.com) and make sure you have selected the _MS Pro Dev_ Environment.
-3. Click on Apps in the left nav bar.
-4. Click _Import Canvas App_ from the toolbar and upload the file.
-5. On the Import package screen set the following and click _Import_.
+2. Go to the [PowerApps Portal](https://powerapps.microsoft.com) and click on Apps in the left nav bar.
+3. Click _Import Canvas App_ from the toolbar and upload the file.
+4. On the Import package screen set the following and click _Import_.
     1. _IotSandbox-Telemetry Reason Code_: Via the ACTION control, set the IMPORT SETUP to be _create as new_ and click the Import button below.
     2. _Related Resources - SQL Server Connection_: Via the ACTION control, create a new SQL Server Connection pointing to the IoT database on your newly created SQL Server and select it so the new connection shows under IMPORT SETUP.
 
 ![picture alt](/images/PowerApps-ImportPackage.png "PowerApps")
 
-6. Once finished your Power App should be live, you can test it within PowerApps.  
-7. Copy the URL to your Power App as we will need that for the Power BI Report in the next section.
+5. Once finished your Power App should be live, you can test it within PowerApps.  
+6. Copy the URL to your Power App as we will need that for the Power BI Report in the next section.
 
 ### Power BI Report Configuration ###
 This report will show the live telemetry of the device from the IoT SQL database via a Direct Query connection.
