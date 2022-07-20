@@ -284,7 +284,6 @@
               }
           },
           "features": "None",
-          "minTlsVersion": "1.1",
           "disableLocalAuth": false,
           "allowedFqdnList": []
       }
@@ -300,7 +299,7 @@
               "tier": "Standard"
         },
         "properties": {
-            "minimumTlsVersion": "1.1",
+            "minimumTlsVersion": "1.2",
             "publicNetworkAccess": "Enabled",
             "disableLocalAuth": false,
             "zoneRedundant": false
@@ -320,21 +319,6 @@
                 "Manage",
                 "Send"
             ]
-        }
-    },
-    {
-        "type": "Microsoft.ServiceBus/namespaces/networkRuleSets",
-        "apiVersion": "2022-01-01-preview",
-        "name": "[concat(variables('ServiceBusNamespace'), '/default')]",
-        "location": "[variables('location')]",
-        "dependsOn": [
-            "[resourceId('Microsoft.ServiceBus/namespaces', variables('ServiceBusNamespace'))]"
-        ],
-        "properties": {
-            "publicNetworkAccess": "Enabled",
-            "defaultAction": "Allow",
-            //"virtualNetworkRules": [],
-            "ipRules": []
         }
     },
     {
@@ -377,8 +361,6 @@
           ],
           "customParameterValues": {},
           "nonSecretParameterValues": {},
-          //"createdTime": "2021-09-12T22:21:28.9871474Z",
-          //"changedTime": "2021-09-12T22:21:28.9871474Z",
           "api": {
               "name": "[parameters('ConnectionsServicebusName')]",
               "displayName": "Service Bus",
@@ -435,7 +417,7 @@
         "administratorLogin": "[parameters('serverAdminUsername')]",
         "administratorLoginPassword": "[parameters('serverAdminPassword')]",
         "version": "12.0",
-        "minimalTlsVersion": "1.1",
+        "minimalTlsVersion": "1.2",
         "publicNetworkAccess": "Enabled",
         "administrators": {
           "administratorType": "ActiveDirectory",
