@@ -40,9 +40,10 @@ Next we need to deploy the following resources within the Resource Group:
 This will be done using the *00-azuredeploy_parameters.json* and *01-azuredeploy.json* ARM template files in the arm folder of this repository.  After you have cloned this directory, there are two steps to follow...
 1. Open the *00-azuredeploy_paramaters.json* file and add the values needed for any section that has _insert value here_. The following are pointers to finding this information.
     1. serverlogin - This property is for the Azure SQL Server.  This is your Microsoft AAD email address.
-    2. subscriptionid - Azure subscription ID
-    3. objectid - This is found under your user profile within Azure Active Directory setting within the Azure portal 
-    4. tenantid - This is found under the Azure Active Directory setting within the Azure portal
+    2. serverAdminPassword - This must be atleast 12 characters long.
+    3. subscriptionid - Azure subscription ID
+    4. objectid - This is found under your user profile within Azure Active Directory setting within the Azure portal 
+    5. tenantid - This is found under the Azure Active Directory setting within the Azure portal
 2. Open a powershell window and navigate to the arm directory of this cloned repository and run the following command:
 ```javascript
 $parameters = @{
