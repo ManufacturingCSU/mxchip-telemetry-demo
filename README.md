@@ -79,7 +79,7 @@ Even though we created the API Connections, we still need to update them with th
 <b>twilio - API Connection:</b>
 To use the text messaging component for the alerts, we must use [Twilio](https://www.twilio.com/).  
 1. To utilize this connection.  You need to create a Twilio account and create _Twilio Account Id_ and _Twilio Access Token_.  For instructions to do so, go [here](https://www.twilio.com/docs/iam/access-tokens).
-2. Go to the _servicebus - API Connection_ and on the _Edit API connection_ blade copy the Twilio Account Id and Twilio Access Token values and click Save.
+2. Go to the _twilio - API Connection_ and on the _Edit API connection_ blade copy the Twilio Account Id and Twilio Access Token values and click Save.
 
 #### Updating the SQL Server and IoT SQL Database ####
 
